@@ -1,0 +1,23 @@
+{
+  "type": "inworldrecipes:right_click_on_block_transforms_item",
+  "held_item":
+    {
+      "item": "minecraft:diamond_pickaxe"
+    }
+  ,
+  "target_block": [
+    {
+      "item": "minecraft:stone"
+    }
+  ],
+  "damage_held_item": false,
+  "consume_held_item": true,
+  "destroy_target_block": false,
+  "pop_item": false,
+  "result":
+    {
+      "id": "minecraft:cobblestone",
+      "count": 64
+    }
+
+}

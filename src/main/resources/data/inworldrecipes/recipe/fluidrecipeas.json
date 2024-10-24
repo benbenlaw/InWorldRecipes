@@ -1,0 +1,17 @@
+{
+  "type": "inworldrecipes:drop_item_in_fluid",
+  "dropped_item":
+    {
+      "item": "minecraft:iron_ingot",
+      "count": 10
+    }
+  ,
+  "fluid": "minecraft:water",
+  "consume_fluid": false,
+  "result":
+    {
+      "id": "minecraft:gold_ingot",
+      "count": 3
+    }
+
+}

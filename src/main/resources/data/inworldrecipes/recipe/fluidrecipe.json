@@ -1,0 +1,16 @@
+{
+  "type": "inworldrecipes:drop_item_in_fluid",
+  "dropped_item":
+    {
+      "item": "minecraft:diamond"
+    }
+  ,
+  "fluid": "minecraft:water",
+  "consume_fluid": true,
+  "result":
+    {
+      "id": "minecraft:emerald",
+      "count": 1
+    }
+
+}

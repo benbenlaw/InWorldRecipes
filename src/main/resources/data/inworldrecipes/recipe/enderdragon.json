@@ -1,0 +1,20 @@
+{
+  "type": "inworldrecipes:right_click_on_entity_transforms_item",
+  "held_item":
+    {
+      "item": "minecraft:white_wool",
+      "count": 12
+    }
+  ,
+  "entity": "minecraft:ender_dragon",
+  "damage_held_item": true,
+  "consume_held_item": true,
+  "destroy_entity": true,
+  "pop_item": true,
+  "result":
+    {
+      "id": "minecraft:cobblestone",
+      "count": 64
+    }
+
+}
