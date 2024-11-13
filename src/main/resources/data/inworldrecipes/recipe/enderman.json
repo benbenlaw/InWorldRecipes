@@ -6,7 +6,7 @@
       "count": 12
     }
   ,
-  "entity": "minecraft:ender_dragon",
+  "entity": "minecraft:enderman",
   "damage_held_item": true,
   "consume_held_item": true,
   "destroy_entity": true,
