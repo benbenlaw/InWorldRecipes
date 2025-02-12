@@ -30,6 +30,9 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
     public static RecipeType<RightClickOnEntityTransformsItemRecipe> RIGHT_CLICK_ON_ENTITY_TRANSFORM_ITEM_RECIPE =
             new RecipeType<>(RightClickOnEntityTransformsItemRecipeCategory.UID, RightClickOnEntityTransformsItemRecipe.class);
 
+    public static RecipeType<DropItemInFluidConvertsFluidRecipe> DROP_ITEM_IN_FLUID_CONVERTS_FLUID_RECIPE =
+            new RecipeType<>(DropItemInFluidConvertsFluidRecipeCategory.UID, DropItemInFluidConvertsFluidRecipe.class);
+
     @Override
     public ResourceLocation getPluginUid() {
         return ResourceLocation.fromNamespaceAndPath(InWorldRecipes.MOD_ID, "jei_plugin");
@@ -58,6 +61,9 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
 
         registration.addRecipeCategories(new
                 RightClickOnEntityTransformsItemRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
+
+        registration.addRecipeCategories(new
+                DropItemInFluidConvertsFluidRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
@@ -74,8 +80,9 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
         registration.addRecipes(DropItemInFluidRecipeCategory.RECIPE_TYPE,
                 recipeManager.getAllRecipesFor(InWorldRecipeRecipes.DROP_ITEM_IN_FLUID_TYPE.get()).stream().map(RecipeHolder::value).toList());
 
-        registration.addRecipes(RightClickOnEntityTransformsItemRecipeCategory.RECIPE_TYPE,
-                recipeManager.getAllRecipesFor(InWorldRecipeRecipes.RIGHT_CLICK_ON_ENTITY_TRANSFORMS_ITEM_TYPE.get()).stream().map(RecipeHolder::value).toList());
+        registration.addRecipes(DropItemInFluidConvertsFluidRecipeCategory.RECIPE_TYPE,
+                recipeManager.getAllRecipesFor(InWorldRecipeRecipes.DROP_ITEM_IN_FLUID_CONVERTS_FLUID_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).toList());
+
 
     }
 

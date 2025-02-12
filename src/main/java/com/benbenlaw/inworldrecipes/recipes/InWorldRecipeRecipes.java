@@ -48,6 +48,14 @@ public class InWorldRecipeRecipes {
     public static final Supplier<RecipeType<RightClickOnEntityTransformsItemRecipe>> RIGHT_CLICK_ON_ENTITY_TRANSFORMS_ITEM_TYPE =
             TYPES.register("right_click_on_entity_transforms_item", () -> RightClickOnEntityTransformsItemRecipe.Type.INSTANCE);
 
+    //Fluid to Fluid
+    public static final Supplier<RecipeSerializer<DropItemInFluidConvertsFluidRecipe>> DROP_ITEM_IN_FLUID_CONVERTS_FLUID_RECIPE_SERIALIZER =
+            SERIALIZER.register("drop_item_in_fluid_converts_fluid", () -> DropItemInFluidConvertsFluidRecipe.Serializer.INSTANCE);
+
+    public static final Supplier<RecipeType<DropItemInFluidConvertsFluidRecipe>> DROP_ITEM_IN_FLUID_CONVERTS_FLUID_RECIPE_TYPE =
+            TYPES.register("drop_item_in_fluid_converts_fluid", () -> DropItemInFluidConvertsFluidRecipe.Type.INSTANCE);
+
+
     public static void register(IEventBus eventBus) {
         SERIALIZER.register(eventBus);
         TYPES.register(eventBus);

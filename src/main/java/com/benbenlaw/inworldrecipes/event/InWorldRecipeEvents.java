@@ -161,6 +161,20 @@ public class InWorldRecipeEvents {
                         break;
                     }
                 }
+
+                for (RecipeHolder<DropItemInFluidConvertsFluidRecipe> match : level.getRecipeManager().getRecipesFor(DropItemInFluidConvertsFluidRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
+
+                    boolean correctItem = match.value().droppedItem().test(((ItemEntity) event.getEntity()).getItem());
+                    boolean correctItemAmount = ((ItemEntity) event.getEntity()).getItem().getCount() >= match.value().droppedItem().count();
+                    Fluid fluid = BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(match.value().fluid()));
+                    boolean correctFluid = level.getFluidState(event.getEntity().getOnPos()).is(fluid);
+                    Fluid newFluid = BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(match.value().newFluid()));
+
+                    if (correctItem && correctFluid && correctItemAmount) {
+                        level.setBlockAndUpdate(event.getEntity().blockPosition(), newFluid.defaultFluidState().createLegacyBlock());
+                        break;
+                    }
+                }
             }
         }
     }
