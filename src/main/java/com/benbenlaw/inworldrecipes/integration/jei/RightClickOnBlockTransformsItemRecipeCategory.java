@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.List;
 
 public class RightClickOnBlockTransformsItemRecipeCategory implements IRecipeCategory<RightClickOnBlockTransformsItemRecipe> {
     public final static ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(InWorldRecipes.MOD_ID, "right_click_on_block_transforms_item");
@@ -84,7 +85,9 @@ public class RightClickOnBlockTransformsItemRecipeCategory implements IRecipeCat
 
         builder.addSlot(RecipeIngredientRole.CATALYST, 4, 2).addItemStacks(Arrays.asList(recipe.heldItem().getItems()));
         builder.addSlot(RecipeIngredientRole.INPUT, 40, 2).addIngredients(recipe.targetBlock());
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 120, 2).addItemStack(recipe.resultItem());
+
+        List<ItemStack> results = recipe.getResults();
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 120, 2).addItemStacks(results);
 
         if (recipe.damageHeldItem()) {
             totalMessages += 1;

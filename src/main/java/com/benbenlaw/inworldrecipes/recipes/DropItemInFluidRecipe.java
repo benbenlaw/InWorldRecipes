@@ -1,13 +1,17 @@
 package com.benbenlaw.inworldrecipes.recipes;
 
+import com.benbenlaw.core.recipe.ChanceResult;
+import com.benbenlaw.core.recipe.NoInventoryRecipe;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -15,9 +19,11 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public record DropItemInFluidRecipe(SizedIngredient droppedItem, String fluid, boolean consumeFluidBlock, ItemStack resultItem) implements Recipe<NoInventoryRecipe> {
+public record DropItemInFluidRecipe(SizedIngredient droppedItem, String fluid, boolean consumeFluidBlock, NonNullList<ChanceResult> chanceResults) implements Recipe<NoInventoryRecipe> {
 
     @Override
     public boolean matches(NoInventoryRecipe p_346065_, Level p_345375_) {
@@ -26,7 +32,7 @@ public record DropItemInFluidRecipe(SizedIngredient droppedItem, String fluid, b
 
     @Override
     public ItemStack assemble(NoInventoryRecipe p_345149_, HolderLookup.Provider p_346030_) {
-        return resultItem;
+        return chanceResults.get(0).stack().copy();
     }
 
     @Override
@@ -36,7 +42,28 @@ public record DropItemInFluidRecipe(SizedIngredient droppedItem, String fluid, b
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider p_336125_) {
-        return resultItem;
+        return chanceResults.get(0).stack();
+    }
+
+    public List<ItemStack> getResults() {
+        return getRollResults().stream()
+                .map(ChanceResult::stack)
+                .collect(Collectors.toList());
+    }
+
+    public NonNullList<ChanceResult> getRollResults() {
+        return this.chanceResults;
+    }
+
+    public List<ItemStack> rollResults(RandomSource rand) {
+        List<ItemStack> results = new ArrayList<>();
+        List<ChanceResult> rollResults = getRollResults();
+        for (ChanceResult output : rollResults) {
+            ItemStack stack = output.rollOutput(rand);
+            if (!stack.isEmpty())
+                results.add(stack);
+        }
+        return results;
     }
 
     @Override
@@ -67,7 +94,11 @@ public record DropItemInFluidRecipe(SizedIngredient droppedItem, String fluid, b
                         SizedIngredient.FLAT_CODEC.fieldOf("dropped_item").forGetter(DropItemInFluidRecipe::droppedItem),
                         Codec.STRING.fieldOf("fluid").forGetter(DropItemInFluidRecipe::fluid),
                         Codec.BOOL.fieldOf("consume_fluid").forGetter(DropItemInFluidRecipe::consumeFluidBlock),
-                        ItemStack.CODEC.fieldOf("result").forGetter(DropItemInFluidRecipe::resultItem)
+                        Codec.list(ChanceResult.CODEC).fieldOf("results").flatXmap(chanceResults -> {
+                            NonNullList<ChanceResult> nonNullList = NonNullList.create();
+                            nonNullList.addAll(chanceResults);
+                            return DataResult.success(nonNullList);
+                        }, DataResult::success).forGetter(DropItemInFluidRecipe::getRollResults)
                 ).apply(instance, DropItemInFluidRecipe::new)
         );
 
@@ -89,16 +120,21 @@ public record DropItemInFluidRecipe(SizedIngredient droppedItem, String fluid, b
             SizedIngredient droppedItem = SizedIngredient.STREAM_CODEC.decode(buffer);
             String fluid = buffer.readUtf();
             boolean consumeFluidBlock = buffer.readBoolean();
-            ItemStack resultItem = ItemStack.STREAM_CODEC.decode(buffer);
-            
-            return new DropItemInFluidRecipe(droppedItem, fluid, consumeFluidBlock, resultItem);
+            int size = buffer.readVarInt();
+            NonNullList<ChanceResult> outputs = NonNullList.withSize(size, ChanceResult.EMPTY);
+            outputs.replaceAll(ignored -> ChanceResult.read(buffer));
+
+            return new DropItemInFluidRecipe(droppedItem, fluid, consumeFluidBlock, outputs);
         }
 
         private static void write(RegistryFriendlyByteBuf buffer, DropItemInFluidRecipe recipe) {
             SizedIngredient.STREAM_CODEC.encode(buffer, recipe.droppedItem);
             buffer.writeUtf(recipe.fluid);
             buffer.writeBoolean(recipe.consumeFluidBlock);
-            ItemStack.STREAM_CODEC.encode(buffer, recipe.resultItem);
+            buffer.writeVarInt(recipe.chanceResults.size());
+            for (ChanceResult output : recipe.chanceResults) {
+                output.write(buffer);
+            }
         }
     }
 }

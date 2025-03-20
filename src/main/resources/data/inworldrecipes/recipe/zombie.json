@@ -11,10 +11,26 @@
   "consume_held_item": true,
   "destroy_entity": true,
   "pop_item": true,
-  "result":
+  "results": [
     {
-      "id": "minecraft:cobblestone",
-      "count": 64
+      "item": {
+        "count": 2,
+        "id": "minecraft:acacia_log"
+      }
+    },
+    {
+      "chance": 0.2,
+      "item": {
+        "count": 1,
+        "id": "minecraft:acacia_sapling"
+      }
+    },
+    {
+      "chance": 0.1,
+      "item": {
+        "count": 1,
+        "id": "minecraft:diamond"
+      }
     }
-
+  ]
 }

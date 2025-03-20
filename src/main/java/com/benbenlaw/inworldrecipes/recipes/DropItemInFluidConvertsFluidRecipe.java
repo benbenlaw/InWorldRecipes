@@ -1,5 +1,6 @@
 package com.benbenlaw.inworldrecipes.recipes;
 
+import com.benbenlaw.core.recipe.NoInventoryRecipe;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

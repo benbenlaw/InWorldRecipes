@@ -8,10 +8,26 @@
   ,
   "fluid": "minecraft:water",
   "consume_fluid": false,
-  "result":
+  "results": [
     {
-      "id": "minecraft:gold_ingot",
-      "count": 3
+      "item": {
+        "count": 2,
+        "id": "minecraft:acacia_log"
+      }
+    },
+    {
+      "chance": 0.2,
+      "item": {
+        "count": 1,
+        "id": "minecraft:acacia_sapling"
+      }
+    },
+    {
+      "chance": 0.1,
+      "item": {
+        "count": 1,
+        "id": "minecraft:stick"
+      }
     }
-
+  ]
 }

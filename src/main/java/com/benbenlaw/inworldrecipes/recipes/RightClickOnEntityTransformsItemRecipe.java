@@ -1,13 +1,17 @@
 package com.benbenlaw.inworldrecipes.recipes;
 
+import com.benbenlaw.core.recipe.ChanceResult;
+import com.benbenlaw.core.recipe.NoInventoryRecipe;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -15,7 +19,11 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 
-public record RightClickOnEntityTransformsItemRecipe(SizedIngredient heldItem, String entity, boolean damageHeldItem, boolean consumeHeldItem, boolean destroyEntity, boolean popItem, ItemStack resultItem) implements Recipe<NoInventoryRecipe> {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public record RightClickOnEntityTransformsItemRecipe(SizedIngredient heldItem, String entity, boolean damageHeldItem, boolean consumeHeldItem, boolean destroyEntity, boolean popItem, NonNullList<ChanceResult> chanceResults) implements Recipe<NoInventoryRecipe> {
 
     @Override
     public boolean matches(NoInventoryRecipe p_346065_, Level p_345375_) {
@@ -24,7 +32,7 @@ public record RightClickOnEntityTransformsItemRecipe(SizedIngredient heldItem, S
 
     @Override
     public ItemStack assemble(NoInventoryRecipe p_345149_, HolderLookup.Provider p_346030_) {
-        return resultItem;
+        return chanceResults.get(0).stack().copy();
     }
 
     @Override
@@ -34,7 +42,29 @@ public record RightClickOnEntityTransformsItemRecipe(SizedIngredient heldItem, S
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider p_336125_) {
-        return resultItem;
+        return chanceResults.get(0).stack();
+    }
+
+
+    public List<ItemStack> getResults() {
+        return getRollResults().stream()
+                .map(ChanceResult::stack)
+                .collect(Collectors.toList());
+    }
+
+    public NonNullList<ChanceResult> getRollResults() {
+        return this.chanceResults;
+    }
+
+    public List<ItemStack> rollResults(RandomSource rand) {
+        List<ItemStack> results = new ArrayList<>();
+        List<ChanceResult> rollResults = getRollResults();
+        for (ChanceResult output : rollResults) {
+            ItemStack stack = output.rollOutput(rand);
+            if (!stack.isEmpty())
+                results.add(stack);
+        }
+        return results;
     }
 
     @Override
@@ -68,7 +98,11 @@ public record RightClickOnEntityTransformsItemRecipe(SizedIngredient heldItem, S
                         Codec.BOOL.fieldOf("consume_held_item").forGetter(RightClickOnEntityTransformsItemRecipe::consumeHeldItem),
                         Codec.BOOL.fieldOf("destroy_entity").forGetter(RightClickOnEntityTransformsItemRecipe::destroyEntity),
                         Codec.BOOL.fieldOf("pop_item").forGetter(RightClickOnEntityTransformsItemRecipe::popItem),
-                        ItemStack.CODEC.fieldOf("result").forGetter(RightClickOnEntityTransformsItemRecipe::resultItem)
+                        Codec.list(ChanceResult.CODEC).fieldOf("results").flatXmap(chanceResults -> {
+                            NonNullList<ChanceResult> nonNullList = NonNullList.create();
+                            nonNullList.addAll(chanceResults);
+                            return DataResult.success(nonNullList);
+                        }, DataResult::success).forGetter(RightClickOnEntityTransformsItemRecipe::getRollResults)
                 ).apply(instance, RightClickOnEntityTransformsItemRecipe::new)
         );
 
@@ -93,9 +127,11 @@ public record RightClickOnEntityTransformsItemRecipe(SizedIngredient heldItem, S
             boolean consumeHeldItem = buffer.readBoolean();
             boolean destroyEntity = buffer.readBoolean();
             boolean popItem = buffer.readBoolean();
-            ItemStack resultItem = ItemStack.STREAM_CODEC.decode(buffer);
+            int size = buffer.readVarInt();
+            NonNullList<ChanceResult> outputs = NonNullList.withSize(size, ChanceResult.EMPTY);
+            outputs.replaceAll(ignored -> ChanceResult.read(buffer));
             
-            return new RightClickOnEntityTransformsItemRecipe(heldItem, entity, damageHeldItem, consumeHeldItem, destroyEntity, popItem, resultItem);
+            return new RightClickOnEntityTransformsItemRecipe(heldItem, entity, damageHeldItem, consumeHeldItem, destroyEntity, popItem, outputs);
         }
 
         private static void write(RegistryFriendlyByteBuf buffer, RightClickOnEntityTransformsItemRecipe recipe) {
@@ -105,7 +141,10 @@ public record RightClickOnEntityTransformsItemRecipe(SizedIngredient heldItem, S
             buffer.writeBoolean(recipe.consumeHeldItem);
             buffer.writeBoolean(recipe.destroyEntity);
             buffer.writeBoolean(recipe.popItem);
-            ItemStack.STREAM_CODEC.encode(buffer, recipe.resultItem);
+            buffer.writeVarInt(recipe.chanceResults.size());
+            for (ChanceResult output : recipe.chanceResults) {
+                output.write(buffer);
+            }
         }
     }
 }

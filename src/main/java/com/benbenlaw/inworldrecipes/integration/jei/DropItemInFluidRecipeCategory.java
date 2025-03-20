@@ -1,9 +1,8 @@
 package com.benbenlaw.inworldrecipes.integration.jei;
 
+import com.benbenlaw.core.recipe.ChanceResult;
 import com.benbenlaw.inworldrecipes.InWorldRecipes;
 import com.benbenlaw.inworldrecipes.recipes.DropItemInFluidRecipe;
-import com.benbenlaw.inworldrecipes.recipes.RightClickOnBlockTransformsBlockRecipe;
-import com.benbenlaw.inworldrecipes.recipes.RightClickOnBlockTransformsItemRecipe;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -18,15 +17,18 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
-import java.util.Arrays;
+import java.util.*;
+import java.util.List;
 
 public class DropItemInFluidRecipeCategory implements IRecipeCategory<DropItemInFluidRecipe> {
     public final static ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(InWorldRecipes.MOD_ID, "drop_item_in_fluid");
@@ -88,7 +90,9 @@ public class DropItemInFluidRecipeCategory implements IRecipeCategory<DropItemIn
         builder.addSlot(RecipeIngredientRole.INPUT, 4, 2).addItemStacks(Arrays.asList(recipe.droppedItem().getItems()));
         Fluid fluid = BuiltInRegistries.FLUID.get(ResourceLocation.parse(recipe.fluid()));
         builder.addSlot(RecipeIngredientRole.CATALYST, 40, 2).addFluidStack(fluid, 1000);
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 85, 2).addItemStack(recipe.resultItem());
+
+        List<ItemStack> results = recipe.getResults();
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 85, 2).addItemStacks(results);
 
         if (recipe.consumeFluidBlock()) {
             totalMessages += 1;

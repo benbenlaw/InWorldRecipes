@@ -1,10 +1,11 @@
 package com.benbenlaw.inworldrecipes.event;
 
+import com.benbenlaw.core.recipe.NoInventoryRecipe;
 import com.benbenlaw.inworldrecipes.InWorldRecipes;
 import com.benbenlaw.inworldrecipes.recipes.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -13,21 +14,19 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.EntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
+
+import java.util.List;
 
 @EventBusSubscriber(modid = InWorldRecipes.MOD_ID)
 public class InWorldRecipeEvents {
@@ -95,7 +94,7 @@ public class InWorldRecipeEvents {
                 boolean destroyTargetBlock = match.value().destroyTargetBlock();
                 boolean popItem = match.value().popItem();
                 boolean consumeHeldItem = match.value().consumeHeldItem();
-                ItemStack resultItem = match.value().resultItem().copy();
+                List<ItemStack> resultItem = match.value().rollResults(level.random);
 
                 if (correctItems && correctBlock && correctAmountOfItems) {
 
@@ -104,9 +103,13 @@ public class InWorldRecipeEvents {
                     }
 
                     if (popItem) {
-                        popOutTheItem(level, blockPos, resultItem);
+                        for (ItemStack itemStack : resultItem) {
+                            popOutTheItem(level, blockPos, itemStack);
+                        }
                     } else {
-                        player.addItem(resultItem);
+                        for (ItemStack itemStack : resultItem) {
+                            player.addItem(itemStack);
+                        }
                     }
 
                     if (consumeHeldItem) {
@@ -148,10 +151,15 @@ public class InWorldRecipeEvents {
                     Fluid fluid = BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(match.value().fluid()));
                     boolean correctFluid = level.getFluidState(event.getEntity().getOnPos()).is(fluid);
                     boolean consumeFluid = match.value().consumeFluidBlock();
-                    ItemStack resultItem = match.value().resultItem();
+                    List<ItemStack> resultItem = match.value().rollResults(level.random);
 
                     if (correctItem && correctFluid && correctItemAmount) {
-                        popOutTheItem(level, event.getEntity().blockPosition(), resultItem);
+
+                        for (ItemStack itemStack : resultItem) {
+                            ItemEntity itementity = new ItemEntity(level, event.getEntity().getX(), event.getEntity().getY(), event.getEntity().getZ(), itemStack);
+                            itementity.setDefaultPickUpDelay();
+                            level.addFreshEntity(itementity);
+                        }
 
                         int stackTotal = ((ItemEntity) event.getEntity()).getItem().getCount();
                         ((ItemEntity) event.getEntity()).getItem().setCount(stackTotal - match.value().droppedItem().count());
@@ -205,7 +213,7 @@ public class InWorldRecipeEvents {
                 boolean consumeHeldItem = match.value().consumeHeldItem();
                 boolean destroyEntity = match.value().destroyEntity();
                 boolean popItem = match.value().popItem();
-                ItemStack resultItem = match.value().resultItem().copy();
+                List<ItemStack> resultItem = match.value().rollResults(level.random);
 
                 if (correctEntity && correctItems && correctAmountOfItems) {
 
@@ -228,10 +236,15 @@ public class InWorldRecipeEvents {
                     }
 
                     if (popItem) {
-                        popOutTheItem(level, entity.blockPosition(), resultItem);
+                        for (ItemStack itemStack : resultItem) {
+                            popOutTheItem(level, entity.blockPosition(), itemStack);
+                        }
                     }
                     else {
-                        player.addItem(resultItem);
+                        for (ItemStack itemStack : resultItem) {
+                            player.addItem(itemStack);
+                        }
+
                     }
 
                     player.swing(hand, true);
