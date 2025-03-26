@@ -173,13 +173,20 @@ public class InWorldRecipeEvents {
                 for (RecipeHolder<DropItemInFluidConvertsFluidRecipe> match : level.getRecipeManager().getRecipesFor(DropItemInFluidConvertsFluidRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
 
                     boolean correctItem = match.value().droppedItem().test(((ItemEntity) event.getEntity()).getItem());
-                    boolean correctItemAmount = ((ItemEntity) event.getEntity()).getItem().getCount() >= match.value().droppedItem().count();
+                    int requiredAmount = match.value().droppedItem().count();
+                    ItemEntity itemEntity = (ItemEntity) event.getEntity();
+                    ItemStack itemStack = itemEntity.getItem();
+                    boolean correctItemAmount = itemStack.getCount() >= requiredAmount;
+                    boolean destroyItems = match.value().destroyItems();
                     Fluid fluid = BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(match.value().fluid()));
                     boolean correctFluid = level.getFluidState(event.getEntity().getOnPos()).is(fluid);
                     Fluid newFluid = BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(match.value().newFluid()));
 
                     if (correctItem && correctFluid && correctItemAmount) {
                         level.setBlockAndUpdate(event.getEntity().blockPosition(), newFluid.defaultFluidState().createLegacyBlock());
+                        if (destroyItems) {
+                            itemStack.shrink(requiredAmount);
+                        }
                         break;
                     }
                 }

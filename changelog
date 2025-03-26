@@ -1,5 +1,8 @@
 Changelog In World Recipes
 
+1.3.1
+Drop Item In Fluid Converts Fluid recipes now has a "destroy_items" field in recipes
+
 1.3.0
 Now depends on BBL Core
 

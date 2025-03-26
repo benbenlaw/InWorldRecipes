@@ -15,7 +15,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 
-public record DropItemInFluidConvertsFluidRecipe(SizedIngredient droppedItem, String fluid, String newFluid) implements Recipe<NoInventoryRecipe> {
+public record DropItemInFluidConvertsFluidRecipe(SizedIngredient droppedItem, String fluid, String newFluid, boolean destroyItems) implements Recipe<NoInventoryRecipe> {
 
     @Override
     public boolean matches(NoInventoryRecipe p_346065_, Level p_345375_) {
@@ -64,7 +64,8 @@ public record DropItemInFluidConvertsFluidRecipe(SizedIngredient droppedItem, St
                 instance.group(
                         SizedIngredient.FLAT_CODEC.fieldOf("dropped_item").forGetter(DropItemInFluidConvertsFluidRecipe::droppedItem),
                         Codec.STRING.fieldOf("fluid").forGetter(DropItemInFluidConvertsFluidRecipe::fluid),
-                        Codec.STRING.fieldOf("new_fluid").forGetter(DropItemInFluidConvertsFluidRecipe::newFluid)
+                        Codec.STRING.fieldOf("new_fluid").forGetter(DropItemInFluidConvertsFluidRecipe::newFluid),
+                        Codec.BOOL.fieldOf("destroy_items").forGetter(DropItemInFluidConvertsFluidRecipe::destroyItems)
                 ).apply(instance, DropItemInFluidConvertsFluidRecipe::new)
         );
 
@@ -86,14 +87,16 @@ public record DropItemInFluidConvertsFluidRecipe(SizedIngredient droppedItem, St
             SizedIngredient droppedItem = SizedIngredient.STREAM_CODEC.decode(buffer);
             String fluid = buffer.readUtf();
             String newFluid = buffer.readUtf();
+            boolean destroyItems = buffer.readBoolean();
 
-            return new DropItemInFluidConvertsFluidRecipe(droppedItem, fluid, newFluid);
+            return new DropItemInFluidConvertsFluidRecipe(droppedItem, fluid, newFluid, destroyItems);
         }
 
         private static void write(RegistryFriendlyByteBuf buffer, DropItemInFluidConvertsFluidRecipe recipe) {
             SizedIngredient.STREAM_CODEC.encode(buffer, recipe.droppedItem);
             buffer.writeUtf(recipe.fluid);
             buffer.writeUtf(recipe.newFluid);
+            buffer.writeBoolean(recipe.destroyItems);
         }
     }
 }

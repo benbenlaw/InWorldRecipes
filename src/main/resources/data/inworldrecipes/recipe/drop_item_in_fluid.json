@@ -1,0 +1,12 @@
+{
+  "type": "inworldrecipes:drop_item_in_fluid_converts_fluid",
+  "dropped_item":
+  {
+    "item": "minecraft:gold_ingot",
+    "count": 3
+
+  },
+  "fluid": "minecraft:water",
+  "new_fluid": "techopolis:hot_water",
+  "destroy_items": true
+}
