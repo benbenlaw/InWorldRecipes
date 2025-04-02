@@ -1,6 +1,9 @@
 Changelog In World Recipes
 
-1.3.2.
+1.3.3
+Fixed ender dragon fight not completing after killing the dragon with RightClickOnEntityTransformsItemRecipe recipes
+
+1.3.2
 Fixed destroy entity in RightClickOnEntityTransformsItemRecipe not working on ender dragons
 Re Enabled JEI support for RightClickOnEntityTransformsItemRecipe (no idea how i disabled it)
 

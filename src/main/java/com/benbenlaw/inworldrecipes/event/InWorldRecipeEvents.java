@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -232,7 +233,20 @@ public class InWorldRecipeEvents {
                         if (entity instanceof EnderDragonPart part) {
                             entity = part.parentMob;
                         }
+
+                        if (entity instanceof EnderDragon dragon) {
+                            if (dragon.level().getServer() != null) {
+                                ServerLevel serverLevel = (ServerLevel) dragon.level();
+                                EndDragonFight fight = serverLevel.getDragonFight();
+
+                                if (fight != null) {
+                                    fight.setDragonKilled(dragon);
+                                }
+                            }
+                        }
+
                         entity.remove(Entity.RemovalReason.KILLED);
+
                     }
 
                     if (damageHeldItem) {
