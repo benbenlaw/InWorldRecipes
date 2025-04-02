@@ -83,6 +83,8 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
         registration.addRecipes(DropItemInFluidConvertsFluidRecipeCategory.RECIPE_TYPE,
                 recipeManager.getAllRecipesFor(InWorldRecipeRecipes.DROP_ITEM_IN_FLUID_CONVERTS_FLUID_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).toList());
 
+        registration.addRecipes(RightClickOnEntityTransformsItemRecipeCategory.RECIPE_TYPE,
+                recipeManager.getAllRecipesFor(InWorldRecipeRecipes.RIGHT_CLICK_ON_ENTITY_TRANSFORMS_ITEM_TYPE.get()).stream().map(RecipeHolder::value).toList());
 
     }
 
