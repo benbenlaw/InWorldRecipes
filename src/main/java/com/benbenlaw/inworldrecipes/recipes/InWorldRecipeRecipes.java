@@ -55,6 +55,12 @@ public class InWorldRecipeRecipes {
     public static final Supplier<RecipeType<DropItemInFluidConvertsFluidRecipe>> DROP_ITEM_IN_FLUID_CONVERTS_FLUID_RECIPE_TYPE =
             TYPES.register("drop_item_in_fluid_converts_fluid", () -> DropItemInFluidConvertsFluidRecipe.Type.INSTANCE);
 
+    //Block Conversion
+    public static final Supplier<RecipeSerializer<BlockConversionRecipe>> BLOCK_CONVERSION_RECIPE_SERIALIZER =
+            SERIALIZER.register("block_conversion", () -> BlockConversionRecipe.Serializer.INSTANCE);
+
+    public static final Supplier<RecipeType<BlockConversionRecipe>> BLOCK_CONVERSION_RECIPE_TYPE =
+            TYPES.register("block_conversion", () -> BlockConversionRecipe.Type.INSTANCE);
 
     public static void register(IEventBus eventBus) {
         SERIALIZER.register(eventBus);

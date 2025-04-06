@@ -1,0 +1,18 @@
+{
+  "type": "inworldrecipes:right_click_on_block_transforms_item",
+  "held_item":{"item": "minecraft:diamond_pickaxe"},
+  "target_block": [{"item": "minecraft:stone"}],
+  "damage_held_item": true,
+  "consume_held_item": false,
+  "destroy_target_block": true,
+  "pop_item": true,
+  "results": [
+    {
+      "item": {
+        "chance": 0.1,
+        "count": 1,
+        "id": "minecraft:coal"
+      }
+    }
+  ]
+}

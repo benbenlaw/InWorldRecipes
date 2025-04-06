@@ -33,6 +33,10 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
     public static RecipeType<DropItemInFluidConvertsFluidRecipe> DROP_ITEM_IN_FLUID_CONVERTS_FLUID_RECIPE =
             new RecipeType<>(DropItemInFluidConvertsFluidRecipeCategory.UID, DropItemInFluidConvertsFluidRecipe.class);
 
+    public static RecipeType<BlockConversionRecipe> BLOCK_CONVERSION_RECIPE =
+            new RecipeType<>(BlockConversionRecipeCategory.UID, BlockConversionRecipe.class);
+
+
     @Override
     public ResourceLocation getPluginUid() {
         return ResourceLocation.fromNamespaceAndPath(InWorldRecipes.MOD_ID, "jei_plugin");
@@ -64,6 +68,9 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
 
         registration.addRecipeCategories(new
                 DropItemInFluidConvertsFluidRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
+
+        registration.addRecipeCategories(new
+                BlockConversionRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
@@ -85,6 +92,9 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
 
         registration.addRecipes(RightClickOnEntityTransformsItemRecipeCategory.RECIPE_TYPE,
                 recipeManager.getAllRecipesFor(InWorldRecipeRecipes.RIGHT_CLICK_ON_ENTITY_TRANSFORMS_ITEM_TYPE.get()).stream().map(RecipeHolder::value).toList());
+
+        registration.addRecipes(BlockConversionRecipeCategory.RECIPE_TYPE,
+                recipeManager.getAllRecipesFor(InWorldRecipeRecipes.BLOCK_CONVERSION_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).toList());
 
     }
 

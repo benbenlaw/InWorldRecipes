@@ -1,0 +1,9 @@
+{
+  "type": "inworldrecipes:block_conversion",
+  "block_to_convert": "minecraft:sand",
+  "converted_block": "minecraft:glass",
+  "pop_block": true,
+  "requires_sunlight": false,
+  "dimension": "minecraft:the_nether",
+  "duration": 50
+}

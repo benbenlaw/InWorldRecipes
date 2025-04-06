@@ -5,7 +5,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.142'
+    id 'net.neoforged.gradle.userdev' version '7.0.165'
     id 'net.darkhax.curseforgegradle' version '1.1.24'
     id "com.modrinth.minotaur" version "2.+"
 
@@ -63,8 +63,8 @@ dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
     //BBL Core
-    compileOnly "curse.maven:bbl-core-1135181:5973478"
-    runtimeOnly "curse.maven:bbl-core-1135181:5973478"
+    compileOnly "curse.maven:bbl-core-1135181:6338364"
+    runtimeOnly "curse.maven:bbl-core-1135181:6338364"
 
     //JEI
     compileOnly "curse.maven:jei-238222:5606861"
@@ -77,6 +77,10 @@ dependencies {
     //Rhino
     compileOnly "curse.maven:rhino-416294:5650008"
     runtimeOnly "curse.maven:rhino-416294:5650008"
+
+    //Opolis Utilities
+    compileOnly "curse.maven:opolis-utilities-649644:6386754"
+    runtimeOnly "curse.maven:opolis-utilities-649644:6386754"
 
     //Mekanism
     //compileOnly "curse.maven:mekanism-268560:5574951"

@@ -3,12 +3,14 @@ package com.benbenlaw.inworldrecipes.event;
 import com.benbenlaw.core.recipe.NoInventoryRecipe;
 import com.benbenlaw.inworldrecipes.InWorldRecipes;
 import com.benbenlaw.inworldrecipes.recipes.*;
+import com.benbenlaw.inworldrecipes.util.DimensionPositionHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -23,15 +25,20 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import org.apache.logging.log4j.core.jmx.Server;
 
-import java.util.List;
+import java.util.*;
 
 @EventBusSubscriber(modid = InWorldRecipes.MOD_ID)
 public class InWorldRecipeEvents {
@@ -283,14 +290,156 @@ public class InWorldRecipeEvents {
         }
     }
 
+    //Block Conversion
+    private static final Map<DimensionPositionHelper, Long> placedBlocks = new HashMap<>();
+    @SubscribeEvent
+    public static void onBlockConversion(BlockEvent.EntityPlaceEvent event) {
+
+        Level level = Objects.requireNonNull(event.getEntity()).level();
+        Block block = event.getPlacedBlock().getBlock();
+
+        for (RecipeHolder<BlockConversionRecipe> match : level.getRecipeManager().getRecipesFor(BlockConversionRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
+
+            Block recipeBlock = match.value().getBlockToConvert();
+            TagKey<Block> recipeBlockTag = match.value().getBlockToConvertTag();
+
+            if (recipeBlock != null) {
+                if (block == recipeBlock) {
+                    if (level instanceof ServerLevel serverLevel) {
+                        DimensionPositionHelper dimensionPositionHelper = new DimensionPositionHelper(serverLevel.dimension(), event.getPos());
+                        placedBlocks.put(dimensionPositionHelper, level.getGameTime());
+                    }
+                }
+            }
+
+            if (recipeBlockTag != null) {
+                if (block.defaultBlockState().is(recipeBlockTag)) {
+                    if (level instanceof ServerLevel serverLevel) {
+                        DimensionPositionHelper dimensionPositionHelper = new DimensionPositionHelper(serverLevel.dimension(), event.getPos());
+                        placedBlocks.put(dimensionPositionHelper, level.getGameTime());
+                    }
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onBlockBreak(BlockEvent.BreakEvent event) {
+
+        Level level = event.getPlayer().level();
+        Block block = event.getState().getBlock();
+
+        for (RecipeHolder<BlockConversionRecipe> match : level.getRecipeManager().getRecipesFor(BlockConversionRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
+
+            Block recipeBlock = match.value().getBlockToConvert();
+            TagKey<Block> recipeBlockTag = match.value().getBlockToConvertTag();
+
+            if (recipeBlock != null) {
+                if (block == recipeBlock) {
+                    if (level instanceof ServerLevel serverLevel) {
+                        DimensionPositionHelper dimensionPositionHelper = new DimensionPositionHelper(serverLevel.dimension(), event.getPos());
+                        placedBlocks.remove(dimensionPositionHelper);
+                    }
+                }
+            }
+
+            if (recipeBlockTag != null) {
+                if (block.defaultBlockState().is(recipeBlockTag)) {
+                    if (level instanceof ServerLevel serverLevel) {
+                        DimensionPositionHelper dimensionPositionHelper = new DimensionPositionHelper(serverLevel.dimension(), event.getPos());
+                        placedBlocks.remove(dimensionPositionHelper);
+                    }
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(ServerTickEvent.Post event) {
+
+        Iterator<Map.Entry<DimensionPositionHelper, Long>> iterator = placedBlocks.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<DimensionPositionHelper, Long> entry = iterator.next();
+            DimensionPositionHelper dimensionPositionHelper = entry.getKey();
+
+            ServerLevel level = event.getServer().getLevel(dimensionPositionHelper.dimension());
+
+            assert level != null;
+            long currentTime = level.getGameTime();
+
+            String dimension = dimensionPositionHelper.dimension().location().toString();
+
+
+            if (!dimensionPositionHelper.dimension().equals(level.dimension())) continue;
+
+
+            BlockPos pos = dimensionPositionHelper.pos();
+            long placedTime = entry.getValue();
+
+            if (!level.isLoaded(pos)) continue;
+
+            BlockState state = level.getBlockState(pos);
+
+            for (RecipeHolder<BlockConversionRecipe> match : level.getRecipeManager().getRecipesFor(BlockConversionRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
+
+                Block recipeBlock = match.value().getBlockToConvert();
+                TagKey<Block> recipeBlockTag = match.value().getBlockToConvertTag();
+                Block convertedBlock = match.value().getConvertedBlock();
+                int duration = match.value().duration();
+                boolean popItem = match.value().popBlock();
+
+                assert recipeBlock != null;
+                if (state.is(recipeBlock) || (recipeBlockTag != null && state.is(recipeBlockTag))) {
+                    if (currentTime - placedTime >= duration) {
+
+                        // Day time check
+                        boolean requiresSunlight = match.value().requiresSunlight();
+                        if (requiresSunlight && (!level.canSeeSky(pos.above()) || !level.isDay())) {
+                            continue;
+                        }
+
+                        // Nighttime check
+                        boolean requiresMoonlight = match.value().requiresMoonlight();
+                        if (requiresMoonlight && (!level.canSeeSky(pos.above()) || level.isDay())) {
+                            continue;
+                        }
+
+                        // Dimension check
+                        String requiredDimension = match.value().dimension();
+                        boolean requiresDimension = !requiredDimension.contains("none");
+
+                        if (requiresDimension) {
+                            if (!dimension.equals(requiredDimension)) {
+                                continue;
+                            }
+                        }
+
+                        // Pop item
+                        if (popItem) {
+                            popOutTheItem(level, pos, new ItemStack(convertedBlock));
+                            level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+                        } else {
+                            level.setBlockAndUpdate(pos, convertedBlock.defaultBlockState());
+                        }
+
+                        SoundType blockSounds = convertedBlock.getSoundType(convertedBlock.defaultBlockState(), level, pos, null);
+                        level.playSound(null, pos, blockSounds.getPlaceSound(), SoundSource.BLOCKS, 1, 1);
+
+                        iterator.remove(); // Done tracking this block
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
     public static void popOutTheItem(Level level, BlockPos blockPos, ItemStack itemStack) {
 
-            Vec3 vec3 = Vec3.atLowerCornerWithOffset(blockPos, 0.5, 1.1, 0.5).offsetRandom(level.random, 0.7F);
-            ItemStack itemstack1 = itemStack.copy();
-            ItemEntity itementity = new ItemEntity(level, vec3.x(), vec3.y(), vec3.z(), itemstack1);
-            itementity.setDefaultPickUpDelay();
-            level.addFreshEntity(itementity);
-        }
-
+        Vec3 vec3 = Vec3.atLowerCornerWithOffset(blockPos, 0.5, 1.1, 0.5).offsetRandom(level.random, 0.7F);
+        ItemStack itemstack1 = itemStack.copy();
+        ItemEntity itementity = new ItemEntity(level, vec3.x(), vec3.y(), vec3.z(), itemstack1);
+        itementity.setDefaultPickUpDelay();
+        level.addFreshEntity(itementity);
+    }
 }

@@ -1,0 +1,8 @@
+{
+  "type": "inworldrecipes:block_conversion",
+  "block_to_convert": "minecraft:emerald_block",
+  "converted_block": "minecraft:obsidian",
+  "pop_block": true,
+  "requires_sunlight": true,
+  "duration": 100
+}

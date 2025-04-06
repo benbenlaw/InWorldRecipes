@@ -1,0 +1,9 @@
+{
+  "type": "inworldrecipes:block_conversion",
+  "block_to_convert": "minecraft:diamond_block",
+  "converted_block": "minecraft:emerald_block",
+  "pop_block": false,
+  "requires_sunlight": false,
+  "dimension": "minecraft:the_nether",
+  "duration": 50
+}

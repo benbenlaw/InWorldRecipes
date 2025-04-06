@@ -2,7 +2,7 @@
   "type": "inworldrecipes:right_click_on_block_transforms_item",
   "held_item":
     {
-      "item": "minecraft:diamond_pickaxe"
+      "item": "minecraft:gold_pickaxe"
     }
   ,
   "target_block": [
