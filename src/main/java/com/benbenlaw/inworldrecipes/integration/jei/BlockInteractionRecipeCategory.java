@@ -142,7 +142,11 @@ public class BlockInteractionRecipeCategory implements IRecipeCategory<BlockInte
                         Block outputBlock = recipe.outputBlockState().getBlock();
                         if (outputBlock != Blocks.AIR) {
                             JEIBlockRenderHelper.renderBlock(guiGraphics, recipe.outputBlockState(), 5 - 4, 14 - 2, 0.60f);
-                        } else {
+                        }
+                        else if (recipe.chanceResults().isEmpty()) {
+                            JEIBlockRenderHelper.renderBlock(guiGraphics, Blocks.BARRIER.defaultBlockState(), 5 - 4, 14 - 2, 0.60f);
+                        }
+                        else {
                             JEIBlockRenderHelper.renderBlock(guiGraphics, Blocks.CHEST.defaultBlockState(), 5 - 4, 14 - 2, 0.60f);
                         }
                     }

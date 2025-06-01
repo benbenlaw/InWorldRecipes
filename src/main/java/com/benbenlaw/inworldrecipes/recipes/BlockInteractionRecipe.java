@@ -102,11 +102,15 @@ public record BlockInteractionRecipe(
                         BlockState.CODEC.fieldOf("target_block_state").forGetter(BlockInteractionRecipe::targetBlockState),
                         SizedIngredient.FLAT_CODEC.fieldOf("held_item").forGetter(BlockInteractionRecipe::heldItem),
                         BlockState.CODEC.optionalFieldOf("output_block_state").forGetter(r -> Optional.ofNullable(r.outputBlockState)),
-                        Codec.list(ChanceResult.CODEC).fieldOf("results").flatXmap(chanceResults -> {
-                            NonNullList<ChanceResult> nonNullList = NonNullList.create();
-                            nonNullList.addAll(chanceResults);
-                            return DataResult.success(nonNullList);
-                        }, DataResult::success).forGetter(BlockInteractionRecipe::getRollResults),
+                        Codec.list(ChanceResult.CODEC)
+                                .optionalFieldOf("results", List.of()).flatXmap(
+                                        list -> {
+                                            NonNullList<ChanceResult> nonNullList = NonNullList.create();
+                                            nonNullList.addAll(list);
+                                            return DataResult.success(nonNullList);
+                                        },
+                                        DataResult::success
+                                ).forGetter(BlockInteractionRecipe::getRollResults),
                         Codec.BOOL.fieldOf("damage_held_item").forGetter(BlockInteractionRecipe::damageHeldItem),
                         Codec.BOOL.fieldOf("consume_held_item").forGetter(BlockInteractionRecipe::consumeHeldItem),
                         Codec.BOOL.fieldOf("pop_items").forGetter(BlockInteractionRecipe::popItems)

@@ -109,20 +109,8 @@ public class BlockInteractionEvent {
                         }
                     }
                 }
-
-
-
-
-                player.sendSystemMessage(Component.literal("BlockInteractionEvent: matched: " + recipeOutputBlockState));
-
-
-
-
-
             }
-
         }
-
     }
 
 
