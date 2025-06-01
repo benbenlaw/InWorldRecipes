@@ -36,6 +36,9 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
     public static RecipeType<BlockConversionRecipe> BLOCK_CONVERSION_RECIPE =
             new RecipeType<>(BlockConversionRecipeCategory.UID, BlockConversionRecipe.class);
 
+    public static RecipeType<BlockInteractionRecipe> BLOCK_INTERACTION_RECIPE =
+            new RecipeType<>(BlockInteractionRecipeCategory.UID, BlockInteractionRecipe.class);
+
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -71,6 +74,9 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
 
         registration.addRecipeCategories(new
                 BlockConversionRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
+
+        registration.addRecipeCategories(new
+                BlockInteractionRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
@@ -95,6 +101,9 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
 
         registration.addRecipes(BlockConversionRecipeCategory.RECIPE_TYPE,
                 recipeManager.getAllRecipesFor(InWorldRecipeRecipes.BLOCK_CONVERSION_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).toList());
+
+        registration.addRecipes(BlockInteractionRecipeCategory.RECIPE_TYPE,
+                recipeManager.getAllRecipesFor(InWorldRecipeRecipes.BLOCK_INTERACTION_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).toList());
 
     }
 

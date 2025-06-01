@@ -1,5 +1,23 @@
 Changelog In World Recipes
 
+
+//In World Recipes for 1.22
+
+Reduce the amount of recipe types
+Add user click method eg right or left click inside recipes
+Fix Ender Dragon rendering
+Check just dire things to add block state properties for in world recipes
+
+1.5.0
+Added Block Interaction Recipe this is a more advanced recipe type that allows for custom block states,
+    this will replace some of the other recipe types in the future
+Updated wiki with full changed
+Moved recipes into testing recipes so they don't always load
+
+
+1.4.1
+Updated to bbl core 1.2.29
+
 1.4.0
 Updated to minecraft 1.21.1
 Updated to Core 1.2.21

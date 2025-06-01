@@ -1,0 +1,14 @@
+{
+  "type": "inworldrecipes:right_click_on_block_transforms_block",
+  "held_item": {
+    "item": "minecraft:diamond"
+  },
+  "target_block": [
+    {
+      "item": "minecraft:wheat"
+    }
+  ],
+  "damage_held_item": false,
+  "consume_held_item": true,
+  "new_block": "minecraft:potato"
+}

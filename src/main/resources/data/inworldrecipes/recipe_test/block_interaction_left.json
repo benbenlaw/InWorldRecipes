@@ -1,0 +1,24 @@
+{
+  "type": "inworldrecipes:block_interaction",
+  "click_type": "left",
+  "target_block_state": {
+    "Name": "minecraft:white_wool"
+  },
+  "held_item": {
+    "item": "minecraft:diamond"
+  },
+  "output_block_state": {
+    "Name": "minecraft:air"
+  },
+  "results": [
+    {
+      "item": {
+        "count": 2,
+        "id": "minecraft:acacia_log"
+      }
+    }
+  ],
+  "damage_held_item": false,
+  "consume_held_item": true,
+  "pop_items": true
+}
