@@ -35,7 +35,8 @@ public record BlockInteractionRecipe(
         NonNullList<ChanceResult> chanceResults,
         boolean damageHeldItem,
         boolean consumeHeldItem,
-        boolean popItems
+        boolean popItems,
+        boolean ignoreBlockState
 
 ) implements Recipe<NoInventoryRecipe> {
 
@@ -113,10 +114,11 @@ public record BlockInteractionRecipe(
                                 ).forGetter(BlockInteractionRecipe::getRollResults),
                         Codec.BOOL.fieldOf("damage_held_item").forGetter(BlockInteractionRecipe::damageHeldItem),
                         Codec.BOOL.fieldOf("consume_held_item").forGetter(BlockInteractionRecipe::consumeHeldItem),
-                        Codec.BOOL.fieldOf("pop_items").forGetter(BlockInteractionRecipe::popItems)
+                        Codec.BOOL.fieldOf("pop_items").forGetter(BlockInteractionRecipe::popItems),
+                        Codec.BOOL.optionalFieldOf("ignore_block_state", false).forGetter(BlockInteractionRecipe::ignoreBlockState)
 
-                ).apply(instance, (clickType, blockState, heldItem, outputOpt, results, damageHeldItem, consumeHeldItem, popItems) ->
-                        new BlockInteractionRecipe(clickType, blockState, heldItem, outputOpt.orElse(null), results, damageHeldItem, consumeHeldItem, popItems)
+                ).apply(instance, (clickType, blockState, heldItem, outputOpt, results, damageHeldItem, consumeHeldItem, popItems, ignoreBlockState) ->
+                        new BlockInteractionRecipe(clickType, blockState, heldItem, outputOpt.orElse(null), results, damageHeldItem, consumeHeldItem, popItems, ignoreBlockState)
                 )
         );
 
@@ -149,8 +151,9 @@ public record BlockInteractionRecipe(
             boolean damageHeldItem = buffer.readBoolean();
             boolean consumeHeldItem = buffer.readBoolean();
             boolean popItem = buffer.readBoolean();
+            boolean ignoreBlockState = buffer.readBoolean();
 
-            return new BlockInteractionRecipe(clickType, blockState, heldItem, outputBlockState, outputs, damageHeldItem, consumeHeldItem, popItem);
+            return new BlockInteractionRecipe(clickType, blockState, heldItem, outputBlockState, outputs, damageHeldItem, consumeHeldItem, popItem, ignoreBlockState);
         }
 
         private static void write(RegistryFriendlyByteBuf buffer, BlockInteractionRecipe recipe) {
@@ -169,6 +172,7 @@ public record BlockInteractionRecipe(
             buffer.writeBoolean(recipe.damageHeldItem);
             buffer.writeBoolean(recipe.consumeHeldItem);
             buffer.writeBoolean(recipe.popItems);
+            buffer.writeBoolean(recipe.ignoreBlockState);
 
 
         }

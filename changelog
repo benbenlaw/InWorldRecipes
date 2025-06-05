@@ -1,5 +1,11 @@
 Changelog In World Recipes
 
+//BROKEN MOD FIX
+delete .idea folder in the mod
+open mod in IntelliJ
+run client
+fix run configuration
+profit
 
 //In World Recipes for 1.22
 
@@ -7,6 +13,10 @@ Reduce the amount of recipe types
 Add user click method eg right or left click inside recipes
 Fix Ender Dragon rendering
 Check just dire things to add block state properties for in world recipes
+
+1.5.2
+Added optional field for block interaction called "ignore_block_state" defaults to false
+When true the block interaction recipe will not check for block state properties just the block
 
 1.5.1
 Chance results are now optional in block interaction recipe

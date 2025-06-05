@@ -32,5 +32,6 @@
   ],
   "damage_held_item": true,
   "consume_held_item": false,
-  "pop_items": false
+  "pop_items": false,
+  "ignore_block_state": false
 }

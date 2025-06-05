@@ -69,7 +69,7 @@ public class BlockInteractionEvent {
         BlockState recipeTargetBlockState = match.value().targetBlockState();
         BlockState levelTargetBlockState = level.getBlockState(pos);
 
-        if (recipeTargetBlockState.equals(levelTargetBlockState)) {
+        if (recipeTargetBlockState.equals(levelTargetBlockState) || (match.value().ignoreBlockState() && recipeTargetBlockState.getBlock() == levelTargetBlockState.getBlock())) {
 
             SizedIngredient recipeHeldItem = match.value().heldItem();
 
