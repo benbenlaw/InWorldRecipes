@@ -28,10 +28,12 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -155,32 +157,68 @@ public class InWorldRecipeEvents {
         if (!level.isClientSide()) {
 
             if (event.getEntity() instanceof ItemEntity) {
+                BlockPos fluidPos = event.getEntity().blockPosition();
 
                 for (RecipeHolder<DropItemInFluidRecipe> match : level.getRecipeManager().getRecipesFor(DropItemInFluidRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
+                    DropItemInFluidRecipe recipe = match.value();
 
-                    boolean correctItem = match.value().droppedItem().test(((ItemEntity) event.getEntity()).getItem());
-                    boolean correctItemAmount = ((ItemEntity) event.getEntity()).getItem().getCount() >= match.value().droppedItem().count();
-                    Fluid fluid = BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(match.value().fluid()));
-                    boolean correctFluid = level.getFluidState(event.getEntity().getOnPos()).is(fluid);
-                    boolean consumeFluid = match.value().consumeFluidBlock();
-                    List<ItemStack> resultItem = match.value().rollResults(level.random);
+                    Fluid requiredFluid = BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(recipe.fluid()));
+                    boolean correctFluid = level.getFluidState(fluidPos).is(requiredFluid);
+                    if (!correctFluid) continue;
 
-                    if (correctItem && correctFluid && correctItemAmount) {
+                    boolean consumeFluid = recipe.consumeFluidBlock();
+                    List<SizedIngredient> ingredients = recipe.getDroppedItems();
 
-                        for (ItemStack itemStack : resultItem) {
-                            ItemEntity itementity = new ItemEntity(level, event.getEntity().getX(), event.getEntity().getY(), event.getEntity().getZ(), itemStack);
-                            itementity.setDefaultPickUpDelay();
-                            level.addFreshEntity(itementity);
+                    // Collect all ItemEntities at the fluid block's position
+                    List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class,
+                            new AABB(fluidPos).inflate(0.5),
+                            entity -> entity.isAlive() && !entity.getItem().isEmpty());
+
+                    // Try to match all required ingredients to item entities
+                    List<ItemEntity> matchedEntities = new ArrayList<>();
+                    boolean allIngredientsMatched = true;
+
+                    for (SizedIngredient ingredient : ingredients) {
+                        boolean matched = false;
+                        for (ItemEntity itemEntity : itemEntities) {
+                            ItemStack stack = itemEntity.getItem();
+                            if (!matchedEntities.contains(itemEntity) && ingredient.test(stack) && stack.getCount() >= ingredient.count()) {
+                                matchedEntities.add(itemEntity);
+                                matched = true;
+                                break;
+                            }
+                        }
+                        if (!matched) {
+                            allIngredientsMatched = false;
+                            break;
+                        }
+                    }
+
+                    if (allIngredientsMatched) {
+                        // All ingredients are present — complete the recipe
+                        List<ItemStack> resultItems = recipe.rollResults(level.random);
+                        for (ItemStack itemStack : resultItems) {
+                            ItemEntity outputEntity = new ItemEntity(level, fluidPos.getX() + 0.5, fluidPos.getY() + 1, fluidPos.getZ() + 0.5, itemStack);
+                            outputEntity.setDefaultPickUpDelay();
+                            level.addFreshEntity(outputEntity);
                         }
 
-                        int stackTotal = ((ItemEntity) event.getEntity()).getItem().getCount();
-                        ((ItemEntity) event.getEntity()).getItem().setCount(stackTotal - match.value().droppedItem().count());
+                        // Consume the required input items
+                        for (int i = 0; i < ingredients.size(); i++) {
+                            SizedIngredient ingredient = ingredients.get(i);
+                            ItemEntity itemEntity = matchedEntities.get(i);
+                            itemEntity.getItem().shrink(ingredient.count());
+                        }
+
+                        // Consume fluid block
                         if (consumeFluid) {
-                            level.setBlockAndUpdate(event.getEntity().blockPosition(), Blocks.AIR.defaultBlockState());
+                            level.setBlockAndUpdate(fluidPos, Blocks.AIR.defaultBlockState());
                         }
-                        break;
+
+                        break; // Stop checking other recipes after one matches
                     }
                 }
+
 
                 for (RecipeHolder<DropItemInFluidConvertsFluidRecipe> match : level.getRecipeManager().getRecipesFor(DropItemInFluidConvertsFluidRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
 

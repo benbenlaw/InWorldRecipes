@@ -14,6 +14,7 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -23,6 +24,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,7 +89,13 @@ public class DropItemInFluidRecipeCategory implements IRecipeCategory<DropItemIn
 
         totalMessages = 0;
 
-        builder.addSlot(RecipeIngredientRole.INPUT, 4, 2).addItemStacks(Arrays.asList(recipe.droppedItem().getItems()));
+        NonNullList<SizedIngredient> ingredients = recipe.droppedItems();
+        List<ItemStack> itemStacks = new ArrayList<>();
+        for (SizedIngredient ingredient : ingredients) {
+            itemStacks.add(ingredient.getItems()[0].copy());
+        }
+
+        builder.addSlot(RecipeIngredientRole.INPUT, 4, 2).addItemStacks(itemStacks);
         Fluid fluid = BuiltInRegistries.FLUID.get(ResourceLocation.parse(recipe.fluid()));
         builder.addSlot(RecipeIngredientRole.CATALYST, 40, 2).addFluidStack(fluid, 1000);
 

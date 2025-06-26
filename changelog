@@ -14,6 +14,22 @@ Add user click method eg right or left click inside recipes
 Fix Ender Dragon rendering
 Check just dire things to add block state properties for in world recipes
 
+1.5.3
+Drop Item In Fluid now takes a list of SizedIngredient instead of a single SizedIngredient
+json format changed to this
+
+  "dropped_items": [
+    {
+        "count": 1,
+        "item": "minecraft:emerald"
+
+    },
+    {
+        "count": 1,
+        "item": "minecraft:diamond"
+    }
+  ],
+
 1.5.2
 Added optional field for block interaction called "ignore_block_state" defaults to false
 When true the block interaction recipe will not check for block state properties just the block
