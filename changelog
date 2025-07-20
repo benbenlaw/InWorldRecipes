@@ -14,6 +14,9 @@ Add user click method eg right or left click inside recipes
 Fix Ender Dragon rendering
 Check just dire things to add block state properties for in world recipes
 
+1.5.5
+Update JEI Integration to only show the blockstates that are actually used in the recipe
+
 1.5.4
 Block Interaction Recipe now show correct item output count in jei
 Empty / air output_block_state now show chance results in JEI, Empty show that block is uneffected and air shows that the block is removed

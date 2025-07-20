@@ -120,10 +120,20 @@ public class BlockInteractionRecipeCategory implements IRecipeCategory<BlockInte
 
                                 tooltip.add(recipe.targetBlockState().getBlock().getName());
 
-                                for (Map.Entry<Property<?>, Comparable<?>> entry : recipe.targetBlockState().getValues().entrySet()) {
-                                    String key = entry.getKey().getName();
-                                    String value = entry.getValue().toString();
-                                    tooltip.add(Component.literal(key + ": " + value));
+                                BlockState targetState = recipe.targetBlockState();
+                                BlockState defaultState = targetState.getBlock().defaultBlockState();
+
+                                for (Map.Entry<Property<?>, Comparable<?>> entry : targetState.getValues().entrySet()) {
+                                    Property<?> property = entry.getKey();
+                                    Comparable<?> recipeValue = entry.getValue();
+                                    Comparable<?> defaultValue = defaultState.getValue(property);
+
+                                    // Only add to tooltip if it differs from the default
+                                    if (!recipeValue.equals(defaultValue)) {
+                                        String key = property.getName();
+                                        String value = recipeValue.toString();
+                                        tooltip.add(Component.literal(key + ": " + value));
+                                    }
                                 }
 
                                 return tooltip;

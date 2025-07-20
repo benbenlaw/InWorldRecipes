@@ -2,9 +2,9 @@
   "type": "inworldrecipes:block_interaction",
   "click_type": "left",
   "target_block_state": {
-    "Name": "minecraft:oak_slab",
+    "Name": "minecraft:furnace",
     "Properties": {
-      "type": "bottom"
+      "lit": "true"
     }
   },
   "held_item": {
