@@ -2,7 +2,10 @@
   "type": "inworldrecipes:block_interaction",
   "click_type": "left",
   "target_block_state": {
-    "Name": "minecraft:white_wool"
+    "Name": "minecraft:oak_slab",
+    "Properties": {
+      "type": "bottom"
+    }
   },
   "held_item": {
     "item": "minecraft:diamond"
@@ -20,5 +23,6 @@
   ],
   "damage_held_item": false,
   "consume_held_item": true,
-  "pop_items": true
-}
+  "pop_items": true,
+  "ignore_block_state": false
+},
