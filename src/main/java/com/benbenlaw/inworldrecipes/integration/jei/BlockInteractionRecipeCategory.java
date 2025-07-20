@@ -37,6 +37,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
@@ -129,65 +130,79 @@ public class BlockInteractionRecipeCategory implements IRecipeCategory<BlockInte
                             }
                         });
 
-        Block output = recipe.outputBlockState().getBlock();
+        Block outputBlock = recipe.outputBlockState() != null && recipe.outputBlockState().getBlock() != Blocks.AIR
+                ? recipe.outputBlockState().getBlock()
+                : (!recipe.chanceResults().isEmpty() ? Blocks.CHEST : Blocks.BARRIER);
 
-        if (output == Blocks.AIR) {
-            output = Blocks.BARRIER;
-        }
-
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 120, 2).addItemStack(new ItemStack(output))
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 120, 2)
+                .addItemStack(new ItemStack(outputBlock))
                 .setCustomRenderer(VanillaTypes.ITEM_STACK, new IIngredientRenderer<>() {
                     @Override
                     public void render(GuiGraphics guiGraphics, ItemStack stack) {
-                        Block outputBlock = recipe.outputBlockState().getBlock();
-                        if (outputBlock != Blocks.AIR) {
-                            JEIBlockRenderHelper.renderBlock(guiGraphics, recipe.outputBlockState(), 5 - 4, 14 - 2, 0.60f);
-                        }
-                        else if (recipe.chanceResults().isEmpty()) {
-                            JEIBlockRenderHelper.renderBlock(guiGraphics, Blocks.BARRIER.defaultBlockState(), 5 - 4, 14 - 2, 0.60f);
-                        }
-                        else {
-                            JEIBlockRenderHelper.renderBlock(guiGraphics, Blocks.CHEST.defaultBlockState(), 5 - 4, 14 - 2, 0.60f);
-                        }
+                        Block renderBlock = recipe.outputBlockState() != null && recipe.outputBlockState().getBlock() != Blocks.AIR
+                                ? recipe.outputBlockState().getBlock()
+                                : (!recipe.chanceResults().isEmpty() ? Blocks.CHEST : Blocks.BARRIER);
+
+                        JEIBlockRenderHelper.renderBlock(guiGraphics, renderBlock.defaultBlockState(), 1, 12, 0.60f);
                     }
 
                     @Override
                     public List<Component> getTooltip(ItemStack ingredient, TooltipFlag tooltipFlag) {
                         List<Component> tooltip = new ArrayList<>();
 
-                        // Add the main block name
-                        Block outputBlock = recipe.outputBlockState().getBlock();
-                        if (outputBlock != Blocks.AIR) {
-                            tooltip.add(outputBlock.getName());
+                        BlockState outputState = recipe.outputBlockState();
+
+                        if (outputState == null) {
+                            // Block state is null (no output block at all)
+                            tooltip.add(Component.literal("Block Remains the Same")
+                                    .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+                        } else {
+                            Block outputBlock = outputState.getBlock();
+                            if (outputBlock == Blocks.AIR) {
+                                // Block destroyed, so random results from breaking
+                                tooltip.add(Component.literal("Block destroyed!")
+                                        .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+                            } else {
+                                // Real block output: show name and properties
+                                tooltip.add(outputBlock.getName());
+                                for (Map.Entry<Property<?>, Comparable<?>> entry : outputState.getValues().entrySet()) {
+                                    String key = entry.getKey().getName();
+                                    String value = entry.getValue().toString();
+                                    tooltip.add(Component.literal(key + ": " + value));
+                                }
+                            }
                         }
 
-                        for (Map.Entry<Property<?>, Comparable<?>> entry : recipe.outputBlockState().getValues().entrySet()) {
-                            String key = entry.getKey().getName();
-                            String value = entry.getValue().toString();
-                            tooltip.add(Component.literal(key + ": " + value));
-                        }
-
-                        // Add all chance results (items)
+                        // Show chance results if any
                         List<ChanceResult> results = recipe.chanceResults();
                         if (!results.isEmpty()) {
-                            tooltip.add(Component.literal("Chance Results:").withStyle(ChatFormatting.UNDERLINE, ChatFormatting.GOLD));
+                            tooltip.add(Component.literal("Chance Results:")
+                                    .withStyle(ChatFormatting.UNDERLINE, ChatFormatting.GOLD));
                             for (ChanceResult result : results) {
-                                ItemStack stack = result.stack();  // or result.stack() depending on your method
+                                ItemStack stack = result.stack();
+                                int count = stack.getCount();
+                                Component baseName = stack.getHoverName();
 
-                                // Get the item name with formatting
-                                Component itemName = stack.getHoverName();
+                                Component itemDisplayName = count > 1
+                                        ? Component.literal(count + "x ").append(baseName)
+                                        : baseName;
 
-                                // Format chance as percentage
                                 String chancePercent = String.format("%.1f%%", result.chance() * 100);
 
-                                tooltip.add(Component.literal(" - ").append(itemName).append(": ").append(Component.literal(chancePercent))
+                                tooltip.add(Component.literal(" - ")
+                                        .append(itemDisplayName)
+                                        .append(": ")
+                                        .append(Component.literal(chancePercent))
                                         .withStyle(ChatFormatting.GOLD));
                             }
                         }
 
                         return tooltip;
                     }
+
+
                 });
+
 
 
         builder.addSlot(RecipeIngredientRole.INPUT, 76, 2).addIngredients(recipe.heldItem().ingredient());
@@ -225,7 +240,8 @@ public class BlockInteractionRecipeCategory implements IRecipeCategory<BlockInte
         if (recipe.popItems()) {
             totalMessages += 1;
         }
-        if (recipe.outputBlockState().is(Blocks.AIR)) {
+
+        if (recipe.outputBlockState() != null && recipe.outputBlockState().getBlock().defaultBlockState().is(Blocks.AIR)) {
             totalMessages += 1;
         }
 
@@ -262,7 +278,8 @@ public class BlockInteractionRecipeCategory implements IRecipeCategory<BlockInte
             guiGraphics.drawString(Minecraft.getInstance().font, "Item Drops In World", 0, yOffset, Color.GRAY.getRGB(), false);
             yOffset += 10;
         }
-        if (recipe.outputBlockState().is(Blocks.AIR)) {
+
+        if (recipe.outputBlockState() != null && recipe.outputBlockState().getBlock().defaultBlockState().is(Blocks.AIR)) {
             guiGraphics.drawString(Minecraft.getInstance().font, "Destroys Target Block", 0, yOffset, Color.GRAY.getRGB(), false);
             yOffset += 10;
         }

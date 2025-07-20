@@ -7,9 +7,6 @@
   "held_item": {
     "item": "minecraft:diamond"
   },
-  "output_block_state": {
-    "Name": "minecraft:air"
-  },
   "results": [
     {
       "item": {

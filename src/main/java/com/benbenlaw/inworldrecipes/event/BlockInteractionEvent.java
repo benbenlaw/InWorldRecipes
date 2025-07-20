@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -69,7 +70,33 @@ public class BlockInteractionEvent {
         BlockState recipeTargetBlockState = match.value().targetBlockState();
         BlockState levelTargetBlockState = level.getBlockState(pos);
 
-        if (recipeTargetBlockState.equals(levelTargetBlockState) || (match.value().ignoreBlockState() && recipeTargetBlockState.getBlock() == levelTargetBlockState.getBlock())) {
+        boolean matches = false;
+
+        if (recipeTargetBlockState.getBlock() == levelTargetBlockState.getBlock()) {
+            if (match.value().ignoreBlockState()) {
+                matches = true;
+            } else {
+                matches = true;
+
+                BlockState defaultState = recipeTargetBlockState.getBlock().defaultBlockState();
+
+                for (Property<?> property : recipeTargetBlockState.getProperties()) {
+
+                    Comparable<?> recipeValue = recipeTargetBlockState.getValue(property);
+                    Comparable<?> defaultValue = defaultState.getValue(property);
+                    Comparable<?> levelValue = levelTargetBlockState.getValue(property);
+
+                    if (!recipeValue.equals(defaultValue)) {
+                        if (!recipeValue.equals(levelValue)) {
+                            matches = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (matches) {
 
             SizedIngredient recipeHeldItem = match.value().heldItem();
 
@@ -78,24 +105,22 @@ public class BlockInteractionEvent {
                 BlockState recipeOutputBlockState = match.value().outputBlockState();
                 List<ItemStack> resultItems = match.value().rollResults(level.random);
 
-
-                //Replace the block at the position with the output block state if recipe requires it
+                // Replace the block at the position with the output block state if recipe requires it
                 if (recipeOutputBlockState != null) {
                     level.setBlockAndUpdate(pos, recipeOutputBlockState);
                 }
 
-                //Damage Item
+                // Damage Item
                 if (match.value().damageHeldItem()) {
-                    player.getItemInHand(hand).hurtAndBreak(1, player, EquipmentSlot.valueOf(hand.name().replace("_", "").toUpperCase())); {
-                    }
+                    player.getItemInHand(hand).hurtAndBreak(1, player, EquipmentSlot.valueOf(hand.name().replace("_", "").toUpperCase()));
                 }
 
-                //Consume Item
+                // Consume Item
                 if (match.value().consumeHeldItem()) {
                     player.getItemInHand(hand).shrink(match.value().heldItem().count());
                 }
 
-                //Item Drops
+                // Item Drops
                 if (match.value().popItems()) {
                     for (ItemStack itemStack : resultItems) {
                         if (!itemStack.isEmpty()) {
