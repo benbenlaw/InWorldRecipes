@@ -2,17 +2,12 @@ package com.benbenlaw.inworldrecipes.integration.jei;
 
 import com.benbenlaw.core.recipe.ChanceResult;
 import com.benbenlaw.inworldrecipes.InWorldRecipes;
-import com.benbenlaw.inworldrecipes.MouseUtil;
-import com.benbenlaw.inworldrecipes.recipes.BlockConversionRecipe;
 import com.benbenlaw.inworldrecipes.recipes.BlockInteractionRecipe;
+import com.benbenlaw.inworldrecipes.recipes.BlockTarget;
 import com.benbenlaw.inworldrecipes.recipes.RightClickOnBlockTransformsBlockRecipe;
-import com.benbenlaw.inworldrecipes.recipes.RightClickOnBlockTransformsItemRecipe;
 import com.benbenlaw.inworldrecipes.util.ClickType;
 import com.benbenlaw.inworldrecipes.util.JEIBlockRenderHelper;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethodStage;
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.datafixers.util.Either;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -26,15 +21,14 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -42,13 +36,11 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -109,39 +101,46 @@ public class BlockInteractionRecipeCategory implements IRecipeCategory<BlockInte
 
         totalMessages = 0;
 
-        builder.addSlot(RecipeIngredientRole.INPUT, 4, 2).addItemStack(new ItemStack(recipe.targetBlockState().getBlock()))
-                        .setCustomRenderer(VanillaTypes.ITEM_STACK, new IIngredientRenderer<>() {
-                            @Override
-                            public void render(GuiGraphics guiGraphics, ItemStack stack) {
-                                JEIBlockRenderHelper.renderBlock(guiGraphics, recipe.targetBlockState(), 5 - 4, 14 - 2, 0.60f);
+        if (recipe.targetBlock() instanceof BlockTarget.Single single) {
+            builder.addSlot(RecipeIngredientRole.INPUT, 4, 2).addItemStack(new ItemStack(single.blockState().getBlock()))
+                    .setCustomRenderer(VanillaTypes.ITEM_STACK, new IIngredientRenderer<>() {
+                        @Override
+                        public void render(GuiGraphics guiGraphics, ItemStack stack) {
+                            JEIBlockRenderHelper.renderBlock(guiGraphics, single.blockState(), 5 - 4, 14 - 2, 0.60f);
 
-                            }
+                        }
 
-                            @Override
-                            public List<Component> getTooltip(ItemStack ingredient, TooltipFlag tooltipFlag) {
-                                List<Component> tooltip = new ArrayList<>();
+                        @Override
+                        public List<Component> getTooltip(ItemStack ingredient, TooltipFlag tooltipFlag) {
+                            List<Component> tooltip = new ArrayList<>();
 
-                                tooltip.add(recipe.targetBlockState().getBlock().getName());
+                            tooltip.add(single.blockState().getBlock().getName());
 
-                                BlockState targetState = recipe.targetBlockState();
-                                BlockState defaultState = targetState.getBlock().defaultBlockState();
+                            BlockState targetState = single.blockState();
+                            BlockState defaultState = targetState.getBlock().defaultBlockState();
 
-                                for (Map.Entry<Property<?>, Comparable<?>> entry : targetState.getValues().entrySet()) {
-                                    Property<?> property = entry.getKey();
-                                    Comparable<?> recipeValue = entry.getValue();
-                                    Comparable<?> defaultValue = defaultState.getValue(property);
+                            for (Map.Entry<Property<?>, Comparable<?>> entry : targetState.getValues().entrySet()) {
+                                Property<?> property = entry.getKey();
+                                Comparable<?> recipeValue = entry.getValue();
+                                Comparable<?> defaultValue = defaultState.getValue(property);
 
-                                    // Only add to tooltip if it differs from the default
-                                    if (!recipeValue.equals(defaultValue)) {
-                                        String key = property.getName();
-                                        String value = recipeValue.toString();
-                                        tooltip.add(Component.literal(key + ": " + value));
-                                    }
+                                // Only add to tooltip if it differs from the default
+                                if (!recipeValue.equals(defaultValue)) {
+                                    String key = property.getName();
+                                    String value = recipeValue.toString();
+                                    tooltip.add(Component.literal(key + ": " + value));
                                 }
-
-                                return tooltip;
                             }
-                        });
+
+                            return tooltip;
+                        }
+                    });
+        } else {
+            TagKey<Block> tag = ((BlockTarget.Tag) recipe.targetBlock()).tag();
+            TagKey<Item> itemTag = TagKey.create(Registries.ITEM, tag.location());
+
+            builder.addSlot(RecipeIngredientRole.INPUT, 4, 2).addIngredients(Ingredient.of(itemTag));
+        }
 
 
         Block outputBlock = recipe.outputBlockState() != null && recipe.outputBlockState().getBlock() != Blocks.AIR

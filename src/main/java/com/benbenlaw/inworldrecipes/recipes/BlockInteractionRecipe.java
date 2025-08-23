@@ -10,8 +10,11 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -29,7 +32,7 @@ import java.util.Optional;
 
 public record BlockInteractionRecipe(
         ClickType clickType,
-        BlockState targetBlockState,
+        BlockTarget targetBlock,
         SizedIngredient heldItem,
         BlockState outputBlockState,
         NonNullList<ChanceResult> chanceResults,
@@ -100,7 +103,7 @@ public record BlockInteractionRecipe(
         public final MapCodec<BlockInteractionRecipe> CODEC = RecordCodecBuilder.mapCodec((instance) ->
                 instance.group(
                         ClickTypeCodec.CLICK_TYPE_CODEC.fieldOf("click_type").forGetter(BlockInteractionRecipe::clickType),
-                        BlockState.CODEC.fieldOf("target_block_state").forGetter(BlockInteractionRecipe::targetBlockState),
+                        BlockTargetCodec.CODEC.fieldOf("target_block_state").forGetter(BlockInteractionRecipe::targetBlock),
                         SizedIngredient.FLAT_CODEC.fieldOf("held_item").forGetter(BlockInteractionRecipe::heldItem),
                         BlockState.CODEC.optionalFieldOf("output_block_state").forGetter(r -> Optional.ofNullable(r.outputBlockState)),
                         Codec.list(ChanceResult.CODEC)
@@ -139,7 +142,17 @@ public record BlockInteractionRecipe(
         private static BlockInteractionRecipe read(RegistryFriendlyByteBuf buffer) {
 
             ClickType clickType = ClickTypeCodec.readFromBuffer(buffer);
-            BlockState blockState = Block.stateById(buffer.readInt());
+
+            boolean isTag = buffer.readBoolean();
+            BlockTarget blockTarget;
+            if (isTag) {
+                ResourceLocation tagId = buffer.readResourceLocation();
+                blockTarget = new BlockTarget.Tag(TagKey.create(Registries.BLOCK, tagId));
+            } else {
+                BlockState state = Block.stateById(buffer.readInt());
+                blockTarget = new BlockTarget.Single(state);
+            }
+
             SizedIngredient heldItem = SizedIngredient.STREAM_CODEC.decode(buffer);
             BlockState outputBlockState = null;
             if (buffer.readBoolean()) {
@@ -153,13 +166,21 @@ public record BlockInteractionRecipe(
             boolean popItem = buffer.readBoolean();
             boolean ignoreBlockState = buffer.readBoolean();
 
-            return new BlockInteractionRecipe(clickType, blockState, heldItem, outputBlockState, outputs, damageHeldItem, consumeHeldItem, popItem, ignoreBlockState);
+            return new BlockInteractionRecipe(clickType, blockTarget, heldItem, outputBlockState, outputs, damageHeldItem, consumeHeldItem, popItem, ignoreBlockState);
         }
 
         private static void write(RegistryFriendlyByteBuf buffer, BlockInteractionRecipe recipe) {
 
             ClickTypeCodec.writeToBuffer(buffer, recipe.clickType);
-            buffer.writeInt(Block.getId(recipe.targetBlockState));
+
+            if (recipe.targetBlock instanceof BlockTarget.Tag(TagKey<Block> tag)) {
+                buffer.writeBoolean(true);
+                buffer.writeResourceLocation(tag.location());
+            } else if (recipe.targetBlock instanceof BlockTarget.Single(BlockState target)) {
+                buffer.writeBoolean(false);
+                buffer.writeInt(Block.getId(target));
+            }
+
             SizedIngredient.STREAM_CODEC.encode(buffer, recipe.heldItem);
             buffer.writeBoolean(recipe.outputBlockState != null);
             if (recipe.outputBlockState != null) {

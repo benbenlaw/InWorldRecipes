@@ -5,6 +5,10 @@ Changelog In World Recipes
 Reduce the amount of recipe types
 Fix Ender Dragon rendering
 
+1.5.8
+Changed BlockState input in Block Interaction Recipe to BlockTarget, this retains old functionality but also allows for tags to be used,
+ use "target_block_state": "#minecraft:leaves" instead of other "target_block_state"
+
 1.5.7
 Change JEI left and right click to translations
 

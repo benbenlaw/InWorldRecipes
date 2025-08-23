@@ -3,9 +3,9 @@ package com.benbenlaw.inworldrecipes.event;
 import com.benbenlaw.core.recipe.NoInventoryRecipe;
 import com.benbenlaw.inworldrecipes.InWorldRecipes;
 import com.benbenlaw.inworldrecipes.recipes.BlockInteractionRecipe;
+import com.benbenlaw.inworldrecipes.recipes.BlockTarget;
 import com.benbenlaw.inworldrecipes.util.ClickType;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -22,7 +22,6 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 import java.util.List;
-import java.util.Objects;
 
 @EventBusSubscriber(modid = InWorldRecipes.MOD_ID)
 public class BlockInteractionEvent {
@@ -67,37 +66,12 @@ public class BlockInteractionEvent {
 
     public static void executeBlockInteractionEvent(Level level, Player player, BlockPos pos, InteractionHand hand, RecipeHolder<BlockInteractionRecipe> match) {
 
-        BlockState recipeTargetBlockState = match.value().targetBlockState();
+        BlockTarget recipeTarget = match.value().targetBlock();
         BlockState levelTargetBlockState = level.getBlockState(pos);
 
-        boolean matches = false;
-
-        if (recipeTargetBlockState.getBlock() == levelTargetBlockState.getBlock()) {
-            if (match.value().ignoreBlockState()) {
-                matches = true;
-            } else {
-                matches = true;
-
-                BlockState defaultState = recipeTargetBlockState.getBlock().defaultBlockState();
-
-                for (Property<?> property : recipeTargetBlockState.getProperties()) {
-
-                    Comparable<?> recipeValue = recipeTargetBlockState.getValue(property);
-                    Comparable<?> defaultValue = defaultState.getValue(property);
-                    Comparable<?> levelValue = levelTargetBlockState.getValue(property);
-
-                    if (!recipeValue.equals(defaultValue)) {
-                        if (!recipeValue.equals(levelValue)) {
-                            matches = false;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        boolean matches = recipeTarget.matches(levelTargetBlockState, match.value().ignoreBlockState());
 
         if (matches) {
-
             SizedIngredient recipeHeldItem = match.value().heldItem();
 
             if (recipeHeldItem.test(player.getItemInHand(hand))) {
@@ -112,7 +86,11 @@ public class BlockInteractionEvent {
 
                 // Damage Item
                 if (match.value().damageHeldItem()) {
-                    player.getItemInHand(hand).hurtAndBreak(1, player, EquipmentSlot.valueOf(hand.name().replace("_", "").toUpperCase()));
+                    player.getItemInHand(hand).hurtAndBreak(
+                            1,
+                            player,
+                            EquipmentSlot.valueOf(hand.name().replace("_", "").toUpperCase())
+                    );
                 }
 
                 // Consume Item
