@@ -5,6 +5,9 @@ Changelog In World Recipes
 Reduce the amount of recipe types
 Fix Ender Dragon rendering
 
+1.5.7
+Change JEI left and right click to translations
+
 1.5.6
 Block Interaction Recipe now shows fluid output blocks in JEI
 

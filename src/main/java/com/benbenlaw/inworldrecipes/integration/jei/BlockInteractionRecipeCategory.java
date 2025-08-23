@@ -280,7 +280,13 @@ public class BlockInteractionRecipeCategory implements IRecipeCategory<BlockInte
         }
 
         if (mouseX >= 40 && mouseX < 40 + 18 && mouseY >= 2 && mouseY < 2 + 18) {
-            guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal("Click Type: " + recipe.clickType()), (int) mouseX, (int) mouseY);
+            if (recipe.clickType() == ClickType.LEFT_CLICK) {
+                guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.translatable("jei.inworldrecipe.left_click"), (int) mouseX, (int) mouseY);
+            } else {
+                guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.translatable("jei.inworldrecipe.right_click"), (int) mouseX, (int) mouseY);
+
+            }
+
         }
 
         yOffset = 20;
