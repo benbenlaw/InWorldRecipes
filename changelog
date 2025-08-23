@@ -1,18 +1,12 @@
 Changelog In World Recipes
 
-//BROKEN MOD FIX
-delete .idea folder in the mod
-open mod in IntelliJ
-run client
-fix run configuration
-profit
-
 //In World Recipes for 1.22
 
 Reduce the amount of recipe types
-Add user click method eg right or left click inside recipes
 Fix Ender Dragon rendering
-Check just dire things to add block state properties for in world recipes
+
+1.5.6
+Block Interaction Recipe now shows fluid output blocks in JEI
 
 1.5.5
 Update JEI Integration to only show the blockstates that are actually used in the recipe
