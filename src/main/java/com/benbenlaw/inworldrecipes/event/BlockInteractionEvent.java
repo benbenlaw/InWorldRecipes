@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
@@ -22,6 +23,7 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 import java.util.List;
+import java.util.Objects;
 
 @EventBusSubscriber(modid = InWorldRecipes.MOD_ID)
 public class BlockInteractionEvent {
@@ -79,10 +81,8 @@ public class BlockInteractionEvent {
                 BlockState recipeOutputBlockState = match.value().outputBlockState();
                 List<ItemStack> resultItems = match.value().rollResults(level.random);
 
-                // Replace the block at the position with the output block state if recipe requires it
-                if (recipeOutputBlockState != null) {
-                    level.setBlockAndUpdate(pos, recipeOutputBlockState);
-                }
+                // Replace the block at the position with the output block state if recipe requires if empty then replace with air
+                level.setBlockAndUpdate(pos, Objects.requireNonNullElseGet(recipeOutputBlockState, Blocks.AIR::defaultBlockState));
 
                 // Damage Item
                 if (match.value().damageHeldItem()) {

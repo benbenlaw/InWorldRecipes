@@ -173,23 +173,19 @@ public class BlockInteractionRecipeCategory implements IRecipeCategory<BlockInte
 
                         if (outputState == null) {
                             // Block state is null (no output block at all)
-                            tooltip.add(Component.literal("Block Remains the Same")
+                            tooltip.add(Component.literal("Block destroyed!")
                                     .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
                         } else {
                             Block outputBlock = outputState.getBlock();
-                            if (outputBlock == Blocks.AIR) {
-                                // Block destroyed, so random results from breaking
-                                tooltip.add(Component.literal("Block destroyed!")
-                                        .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
-                            } else {
-                                // Real block output: show name and properties
-                                tooltip.add(outputBlock.getName());
-                                for (Map.Entry<Property<?>, Comparable<?>> entry : outputState.getValues().entrySet()) {
-                                    String key = entry.getKey().getName();
-                                    String value = entry.getValue().toString();
-                                    tooltip.add(Component.literal(key + ": " + value));
-                                }
+
+                            // Real block output: show name and properties
+                            tooltip.add(outputBlock.getName());
+                            for (Map.Entry<Property<?>, Comparable<?>> entry : outputState.getValues().entrySet()) {
+                                String key = entry.getKey().getName();
+                                String value = entry.getValue().toString();
+                                tooltip.add(Component.literal(key + ": " + value));
                             }
+
                         }
 
                         // Show chance results if any

@@ -82,6 +82,10 @@ dependencies {
     compileOnly "curse.maven:opolis-utilities-649644:6386754"
     runtimeOnly "curse.maven:opolis-utilities-649644:6386754"
 
+    //Just Dire Things
+    compileOnly "curse.maven:just-dire-things-1002348:6369120"
+    runtimeOnly "curse.maven:just-dire-things-1002348:6369120"
+
     //Mekanism
     //compileOnly "curse.maven:mekanism-268560:5574951"
     //runtimeOnly "curse.maven:mekanism-268560:5574951"
