@@ -5,6 +5,7 @@ import com.benbenlaw.inworldrecipes.InWorldRecipes;
 import com.benbenlaw.inworldrecipes.recipes.BlockInteractionRecipe;
 import com.benbenlaw.inworldrecipes.recipes.BlockTarget;
 import com.benbenlaw.inworldrecipes.util.ClickType;
+import dev.ftb.mods.ftbultimine.api.FTBUltimineAPI;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -18,12 +19,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @EventBusSubscriber(modid = InWorldRecipes.MOD_ID)
 public class BlockInteractionEvent {
@@ -39,11 +43,23 @@ public class BlockInteractionEvent {
 
         if (level.isClientSide()) return;
 
+        Optional<Collection<BlockPos>> ultiminePositions;
 
-        for (RecipeHolder<BlockInteractionRecipe> match : level.getRecipeManager().getRecipesFor(BlockInteractionRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
+        if (ModList.get().isLoaded("ftbultimine")) {
+            if (FTBUltimineAPI.api().currentBlockSelection(player).isPresent()) {
+                ultiminePositions = FTBUltimineAPI.api().currentBlockSelection(player);
+            } else {
+                ultiminePositions = Optional.of(List.of(pos));
+            }
+        } else {
+            ultiminePositions = Optional.of(List.of(pos));
+        }
 
-            if (match.value().clickType() == ClickType.RIGHT_CLICK) {
-                executeBlockInteractionEvent(level, player, pos, hand, match);
+        for (BlockPos targetPos : ultiminePositions.orElseThrow()) {
+            for (RecipeHolder<BlockInteractionRecipe> match : level.getRecipeManager().getRecipesFor(BlockInteractionRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
+                if (match.value().clickType() == ClickType.RIGHT_CLICK) {
+                    executeBlockInteractionEvent(level, player, targetPos, hand, match);
+                }
             }
         }
     }
@@ -58,10 +74,24 @@ public class BlockInteractionEvent {
 
         if (level.isClientSide()) return;
 
-        for (RecipeHolder<BlockInteractionRecipe> match : level.getRecipeManager().getRecipesFor(BlockInteractionRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
+        Optional<Collection<BlockPos>> ultiminePositions;
 
-            if (match.value().clickType() == ClickType.LEFT_CLICK && event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.START) {
-                executeBlockInteractionEvent(level, player, pos, hand, match);
+        if (ModList.get().isLoaded("ftbultimine")) {
+            if (FTBUltimineAPI.api().currentBlockSelection(player).isPresent()) {
+                ultiminePositions = FTBUltimineAPI.api().currentBlockSelection(player);
+            } else {
+                ultiminePositions = Optional.of(List.of(pos));
+            }
+        } else {
+            ultiminePositions = Optional.of(List.of(pos));
+        }
+
+        for (BlockPos targetPos : ultiminePositions.orElseThrow()) {
+
+            for (RecipeHolder<BlockInteractionRecipe> match : level.getRecipeManager().getRecipesFor(BlockInteractionRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
+                if (match.value().clickType() == ClickType.LEFT_CLICK && event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.START) {
+                    executeBlockInteractionEvent(level, player, targetPos, hand, match);
+                }
             }
         }
     }

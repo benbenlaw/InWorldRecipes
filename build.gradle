@@ -86,9 +86,21 @@ dependencies {
     compileOnly "curse.maven:just-dire-things-1002348:6369120"
     runtimeOnly "curse.maven:just-dire-things-1002348:6369120"
 
+    //FTB Ultimine
+    compileOnly "curse.maven:ftb-ultimine-forge-386134:7025219"
+    runtimeOnly "curse.maven:ftb-ultimine-forge-386134:7025219"
+
+    //Architectury-api
+    compileOnly "curse.maven:architectury-api-419699:5786327"
+    runtimeOnly "curse.maven:architectury-api-419699:5786327"
+
     //Mekanism
     //compileOnly "curse.maven:mekanism-268560:5574951"
     //runtimeOnly "curse.maven:mekanism-268560:5574951"
+
+    //ftb-library-forge
+    compileOnly "curse.maven:ftb-library-forge-404465:7029003"
+    runtimeOnly "curse.maven:ftb-library-forge-404465:7029003"
 
     //EMI
 
