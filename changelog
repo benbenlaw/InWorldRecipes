@@ -5,6 +5,9 @@ Changelog In World Recipes
 Reduce the amount of recipe types
 Fix Ender Dragon rendering
 
+1.5.10
+Working?
+
 1.5.9
 Empty output_block_state now set the block to air, if using air in the output_block_state just remove instead
 

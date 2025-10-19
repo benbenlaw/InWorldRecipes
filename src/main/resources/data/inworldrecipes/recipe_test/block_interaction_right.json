@@ -2,16 +2,10 @@
   "type": "inworldrecipes:block_interaction",
   "click_type": "right",
   "target_block_state": {
-    "Name": "minecraft:wheat",
-    "Properties": {
-      "age": "7"
-    }
+    "Name": "minecraft:grass_block"
   },
   "held_item": {
     "item": "minecraft:diamond_sword"
-  },
-  "output_block_state": {
-    "Name": "minecraft:water"
   },
   "results": [
     {

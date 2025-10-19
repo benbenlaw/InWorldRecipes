@@ -1,22 +1,19 @@
 {
-  "type": "inworldrecipes:right_click_on_entity_transforms_item",
-  "held_item":
-  {
-    "item": "minecraft:diamond",
-    "count": 1
-  }
-,
-  "entity": "justdirethings:paradox_entity",
-  "damage_held_item": false,
-  "consume_held_item": true,
-  "destroy_entity": false,
-  "pop_item": false,
+  "type": "inworldrecipes:block_interaction",
+  "click_type": "left",
+  "target_block_state": "#minecraft:leaves",
+  "held_item": {
+    "tag": "minecraft:swords"
+  },
   "results": [
     {
       "item": {
         "count": 2,
-        "id": "minecraft:diamond"
+        "id": "minecraft:stick"
       }
     }
-  ]
+  ],
+  "damage_held_item": true,
+  "consume_held_item": false,
+  "pop_items": true
 }
