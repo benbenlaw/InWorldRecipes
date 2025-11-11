@@ -1,5 +1,6 @@
 package com.benbenlaw.inworldrecipes;
 
+import com.benbenlaw.inworldrecipes.config.InWorldConfig;
 import com.benbenlaw.inworldrecipes.recipes.InWorldRecipeRecipes;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -37,8 +39,9 @@ public class InWorldRecipes {
     public static final String MOD_ID = "inworldrecipes";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public InWorldRecipes(IEventBus modEventBus) {
+    public InWorldRecipes(IEventBus modEventBus, final ModContainer modContainer) {
 
+        modContainer.registerConfig(ModConfig.Type.COMMON, InWorldConfig.SPEC, "bbl/inworldrecipes/config.toml");
 
         InWorldRecipeRecipes.register(modEventBus);
 

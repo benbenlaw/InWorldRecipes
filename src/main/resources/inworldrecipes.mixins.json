@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "com.benbenlaw.inworldrecipes.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "NoDragonEggTeleport"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+
+}
