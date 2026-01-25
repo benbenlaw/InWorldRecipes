@@ -2,10 +2,10 @@
   "type": "inworldrecipes:block_interaction",
   "click_type": "left",
   "target_block_state": {
-    "Name": "minecraft:white_wool"
+    "Name": "minecraft:grass_block"
   },
   "held_item": {
-    "item": "minecraft:diamond"
+    "item": "minecraft:diamond_sword"
   },
   "results": [
     {
@@ -13,9 +13,16 @@
         "count": 2,
         "id": "minecraft:acacia_log"
       }
+    },
+    {
+      "item": {
+        "count": 2,
+        "id": "minecraft:diamond"
+      }
     }
   ],
-  "damage_held_item": false,
-  "consume_held_item": true,
-  "pop_items": true
+  "damage_held_item": true,
+  "consume_held_item": false,
+  "pop_items": false,
+  "ignore_block_state": true
 }

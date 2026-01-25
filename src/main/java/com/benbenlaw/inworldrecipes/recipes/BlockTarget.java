@@ -37,7 +37,6 @@ public sealed interface BlockTarget {
     record Tag(TagKey<Block> tag) implements BlockTarget {
         @Override
         public boolean matches(BlockState state, boolean ignoreBlockState) {
-            // ignoreBlockState has no effect on tags → just match membership
             return state.is(tag);
         }
     }

@@ -5,6 +5,9 @@ Changelog In World Recipes
 Reduce the amount of recipe types
 Fix Ender Dragon rendering
 
+1.7.1
+- Disabled testing recipe
+
 1.7.0
 - Added config to disable dragon egg teleportation on right and left click, allows for in world recipes to handle it instead
 
