@@ -6,6 +6,7 @@ import com.benbenlaw.inworldrecipes.recipes.*;
 import com.benbenlaw.inworldrecipes.util.DimensionPositionHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -37,6 +38,7 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.apache.logging.log4j.core.jmx.Server;
 
@@ -358,6 +360,37 @@ public class InWorldRecipeEvents {
                     }
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLevelTick(LevelTickEvent.Post event) {
+        Level level = event.getLevel();
+        if (level.isClientSide()) return;
+        if (!(level instanceof ServerLevel serverLevel)) return;
+
+        long gameTime = level.getGameTime();
+
+        for (DimensionPositionHelper posHelper : placedBlocks.keySet()) {
+            if (!posHelper.dimension().equals(level.dimension())) continue;
+
+            BlockPos pos = posHelper.pos();
+
+            long placedTime = placedBlocks.get(posHelper);
+            if (gameTime - placedTime > 100) {
+                placedBlocks.remove(posHelper);
+                continue;
+            }
+
+            serverLevel.sendParticles(
+                    ParticleTypes.ENCHANT,
+                    pos.getX() + 0.5,
+                    pos.getY() + 1.0,
+                    pos.getZ() + 0.5,
+                    5,
+                    0.3, 0.3, 0.3,
+                    0.05
+            );
         }
     }
 

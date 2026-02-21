@@ -62,6 +62,13 @@ public class InWorldRecipeRecipes {
     public static final Supplier<RecipeType<BlockConversionRecipe>> BLOCK_CONVERSION_RECIPE_TYPE =
             TYPES.register("block_conversion", () -> BlockConversionRecipe.Type.INSTANCE);
 
+    //Lightning Crafting
+    public static final Supplier<RecipeSerializer<LightningCraftingRecipe>> LIGHTNING_CRAFTING_RECIPE_SERIALIZER =
+            SERIALIZER.register("lightning_crafting", () -> LightningCraftingRecipe.Serializer.INSTANCE);
+
+    public static final Supplier<RecipeType<LightningCraftingRecipe>> LIGHTNING_CRAFTING_RECIPE_TYPE =
+            TYPES.register("lightning_crafting", () -> LightningCraftingRecipe.Type.INSTANCE);
+
 
     //NEW 1.22
     //Block Interaction Recipe

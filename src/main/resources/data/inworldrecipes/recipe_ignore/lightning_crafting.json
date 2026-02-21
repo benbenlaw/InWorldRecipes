@@ -1,0 +1,31 @@
+{
+  "type": "inworldrecipes:lightning_crafting",
+  "dropped_item":
+  {
+    "item": "minecraft:oak_log",
+    "count": 1
+
+  },
+  "results": [
+    {
+      "item": {
+        "count": 2,
+        "id": "minecraft:obsidian"
+      }
+    },
+    {
+      "chance": 0.2,
+      "item": {
+        "count": 1,
+        "id": "minecraft:emerald"
+      }
+    },
+    {
+      "chance": 0.1,
+      "item": {
+        "count": 1,
+        "id": "minecraft:diamond"
+      }
+    }
+  ]
+}

@@ -39,6 +39,9 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
     public static RecipeType<BlockInteractionRecipe> BLOCK_INTERACTION_RECIPE =
             new RecipeType<>(BlockInteractionRecipeCategory.UID, BlockInteractionRecipe.class);
 
+    public static RecipeType<LightningCraftingRecipe> LIGHTNING_CRAFTING_RECIPE =
+            new RecipeType<>(LightningRecipeCategory.UID, LightningCraftingRecipe.class);
+
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -77,6 +80,9 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
 
         registration.addRecipeCategories(new
                 BlockInteractionRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
+
+        registration.addRecipeCategories(new
+                LightningRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
@@ -104,6 +110,9 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
 
         registration.addRecipes(BlockInteractionRecipeCategory.RECIPE_TYPE,
                 recipeManager.getAllRecipesFor(InWorldRecipeRecipes.BLOCK_INTERACTION_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).toList());
+
+        registration.addRecipes(LightningRecipeCategory.RECIPE_TYPE,
+                recipeManager.getAllRecipesFor(InWorldRecipeRecipes.LIGHTNING_CRAFTING_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).toList());
 
     }
 

@@ -87,8 +87,8 @@ dependencies {
     runtimeOnly "curse.maven:just-dire-things-1002348:6369120"
 
     //FTB Ultimine
-    compileOnly "curse.maven:ftb-ultimine-forge-386134:7025219"
-    runtimeOnly "curse.maven:ftb-ultimine-forge-386134:7025219"
+    compileOnly "curse.maven:ftb-ultimine-forge-386134:7570482"
+    runtimeOnly "curse.maven:ftb-ultimine-forge-386134:7570482"
 
     //Architectury-api
     compileOnly "curse.maven:architectury-api-419699:5786327"
@@ -99,8 +99,8 @@ dependencies {
     //runtimeOnly "curse.maven:mekanism-268560:5574951"
 
     //ftb-library-forge
-    compileOnly "curse.maven:ftb-library-forge-404465:7029003"
-    runtimeOnly "curse.maven:ftb-library-forge-404465:7029003"
+    compileOnly "curse.maven:ftb-library-forge-404465:7420412"
+    runtimeOnly "curse.maven:ftb-library-forge-404465:7420412"
 
     //EMI
 
