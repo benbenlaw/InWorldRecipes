@@ -4,6 +4,9 @@ Changelog In World Recipes
 
 Reduce the amount of recipe types
 
+1.8.1
+- Fixed crash with particles in conversion recipes
+- Particles in conversion recipes now only show in valid recipes
 
 1.8.0
 - Added Lightning Crafting recipe type example below

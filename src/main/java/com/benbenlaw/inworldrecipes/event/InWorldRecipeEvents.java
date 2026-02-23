@@ -334,31 +334,29 @@ public class InWorldRecipeEvents {
     private static final Map<DimensionPositionHelper, Long> placedBlocks = new HashMap<>();
     @SubscribeEvent
     public static void onBlockConversion(BlockEvent.EntityPlaceEvent event) {
-
         Level level = Objects.requireNonNull(event.getEntity()).level();
         Block block = event.getPlacedBlock().getBlock();
 
-        for (RecipeHolder<BlockConversionRecipe> match : level.getRecipeManager().getRecipesFor(BlockConversionRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
+
+        for (RecipeHolder<BlockConversionRecipe> match :
+                level.getRecipeManager().getRecipesFor(
+                        BlockConversionRecipe.Type.INSTANCE,
+                        NoInventoryRecipe.INSTANCE,
+                        level
+                )) {
 
             Block recipeBlock = match.value().getBlockToConvert();
             TagKey<Block> recipeBlockTag = match.value().getBlockToConvertTag();
 
-            if (recipeBlock != null) {
-                if (block == recipeBlock) {
-                    if (level instanceof ServerLevel serverLevel) {
-                        DimensionPositionHelper dimensionPositionHelper = new DimensionPositionHelper(serverLevel.dimension(), event.getPos());
-                        placedBlocks.put(dimensionPositionHelper, level.getGameTime());
-                    }
-                }
-            }
+            boolean matches =
+                    (recipeBlock != null && block == recipeBlock) ||
+                            (recipeBlockTag != null && block.defaultBlockState().is(recipeBlockTag));
 
-            if (recipeBlockTag != null) {
-                if (block.defaultBlockState().is(recipeBlockTag)) {
-                    if (level instanceof ServerLevel serverLevel) {
-                        DimensionPositionHelper dimensionPositionHelper = new DimensionPositionHelper(serverLevel.dimension(), event.getPos());
-                        placedBlocks.put(dimensionPositionHelper, level.getGameTime());
-                    }
-                }
+            if (matches) {
+                DimensionPositionHelper helper =
+                        new DimensionPositionHelper(serverLevel.dimension(), event.getPos());
+                placedBlocks.put(helper, level.getGameTime());
             }
         }
     }
@@ -371,17 +369,71 @@ public class InWorldRecipeEvents {
 
         long gameTime = level.getGameTime();
 
-        for (DimensionPositionHelper posHelper : placedBlocks.keySet()) {
-            if (!posHelper.dimension().equals(level.dimension())) continue;
+        Iterator<Map.Entry<DimensionPositionHelper, Long>> iterator =
+                placedBlocks.entrySet().iterator();
 
-            BlockPos pos = posHelper.pos();
+        while (iterator.hasNext()) {
+            Map.Entry<DimensionPositionHelper, Long> entry = iterator.next();
+            DimensionPositionHelper helper = entry.getKey();
 
-            long placedTime = placedBlocks.get(posHelper);
+            if (!helper.dimension().equals(level.dimension())) continue;
+
+            BlockPos pos = helper.pos();
+            if (!level.isLoaded(pos)) continue;
+
+            BlockState state = level.getBlockState(pos);
+            long placedTime = entry.getValue();
+
+            // Expired
             if (gameTime - placedTime > 100) {
-                placedBlocks.remove(posHelper);
+                iterator.remove();
                 continue;
             }
 
+            boolean hasValidRecipe = false;
+
+            for (RecipeHolder<BlockConversionRecipe> match :
+                    level.getRecipeManager().getRecipesFor(
+                            BlockConversionRecipe.Type.INSTANCE,
+                            NoInventoryRecipe.INSTANCE,
+                            level)) {
+
+                BlockConversionRecipe recipe = match.value();
+
+                // Block match
+                if (!(state.is(recipe.getBlockToConvert()) ||
+                        (recipe.getBlockToConvertTag() != null &&
+                                state.is(recipe.getBlockToConvertTag())))) {
+                    continue;
+                }
+
+                // Dimension restriction
+                String requiredDimension = recipe.dimension();
+                if (!requiredDimension.contains("none") &&
+                        !helper.dimension().location().toString().equals(requiredDimension)) {
+                    continue;
+                }
+
+                // Sunlight
+                if (recipe.requiresSunlight() &&
+                        (!level.canSeeSky(pos.above()) || !level.isDay())) {
+                    continue;
+                }
+
+                // Moonlight
+                if (recipe.requiresMoonlight() &&
+                        (!level.canSeeSky(pos.above()) || level.isDay())) {
+                    continue;
+                }
+
+                hasValidRecipe = true;
+                break;
+            }
+
+            // ❌ No valid recipe → no particles
+            if (!hasValidRecipe) continue;
+
+            // ✅ Valid recipe → show particles
             serverLevel.sendParticles(
                     ParticleTypes.ENCHANT,
                     pos.getX() + 0.5,
@@ -464,19 +516,16 @@ public class InWorldRecipeEvents {
                 if (state.is(recipeBlock) || (recipeBlockTag != null && state.is(recipeBlockTag))) {
                     if (currentTime - placedTime >= duration) {
 
-                        // Day time check
                         boolean requiresSunlight = match.value().requiresSunlight();
                         if (requiresSunlight && (!level.canSeeSky(pos.above()) || !level.isDay())) {
                             continue;
                         }
 
-                        // Nighttime check
                         boolean requiresMoonlight = match.value().requiresMoonlight();
                         if (requiresMoonlight && (!level.canSeeSky(pos.above()) || level.isDay())) {
                             continue;
                         }
 
-                        // Dimension check
                         String requiredDimension = match.value().dimension();
                         boolean requiresDimension = !requiredDimension.contains("none");
 
@@ -486,7 +535,6 @@ public class InWorldRecipeEvents {
                             }
                         }
 
-                        // Pop item
                         if (popItem) {
                             popOutTheItem(level, pos, new ItemStack(convertedBlock));
                             level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
@@ -497,7 +545,7 @@ public class InWorldRecipeEvents {
                         SoundType blockSounds = convertedBlock.getSoundType(convertedBlock.defaultBlockState(), level, pos, null);
                         level.playSound(null, pos, blockSounds.getPlaceSound(), SoundSource.BLOCKS, 1, 1);
 
-                        iterator.remove(); // Done tracking this block
+                        iterator.remove();
                         break;
                     }
                 }
