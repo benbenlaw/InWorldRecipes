@@ -6,6 +6,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -45,6 +46,10 @@ public class InWorldRecipes {
 
         InWorldRecipeRecipes.register(modEventBus);
 
+    }
+
+    public static Identifier identifier(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 }
 

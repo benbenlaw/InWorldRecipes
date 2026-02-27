@@ -4,10 +4,9 @@ import com.benbenlaw.core.recipe.NoInventoryRecipe;
 import com.benbenlaw.inworldrecipes.InWorldRecipes;
 import com.benbenlaw.inworldrecipes.recipes.BlockInteractionRecipe;
 import com.benbenlaw.inworldrecipes.recipes.BlockTarget;
+import com.benbenlaw.inworldrecipes.recipes.InWorldRecipeRecipes;
 import com.benbenlaw.inworldrecipes.util.ClickType;
-import com.benbenlaw.inworldrecipes.util.DelayedTaskManager;
-import dev.architectury.event.events.common.TickEvent;
-import dev.ftb.mods.ftbultimine.api.FTBUltimineAPI;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -45,7 +44,6 @@ public class BlockInteractionEvent {
 
     @SubscribeEvent
     public static void rightClickOnBlock(PlayerInteractEvent.RightClickBlock event) {
-
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
         Player player = event.getEntity();
@@ -53,30 +51,18 @@ public class BlockInteractionEvent {
 
         if (level.isClientSide()) return;
 
-        Optional<Collection<BlockPos>> ultiminePositions;
-
-        if (ModList.get().isLoaded("ftbultimine")) {
-            if (FTBUltimineAPI.api().currentBlockSelection(player).isPresent()) {
-                ultiminePositions = FTBUltimineAPI.api().currentBlockSelection(player);
-            } else {
-                ultiminePositions = Optional.of(List.of(pos));
-            }
-        } else {
-            ultiminePositions = Optional.of(List.of(pos));
-        }
+        Optional<Collection<BlockPos>> ultiminePositions = Optional.of(List.of(pos));
 
         for (BlockPos targetPos : ultiminePositions.orElseThrow()) {
-            for (RecipeHolder<BlockInteractionRecipe> match : level.getRecipeManager().getRecipesFor(BlockInteractionRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
-                if (match.value().clickType() == ClickType.RIGHT_CLICK) {
-                    executeBlockInteractionEvent(level, player, targetPos, hand, match);
-                }
-            }
+            getAllBlockInteractionRecipes(level).forEach(match -> {
+                // Execute the recipe regardless of click type
+                executeBlockInteractionEvent(level, player, targetPos, hand, match);
+            });
         }
     }
 
     @SubscribeEvent
     public static void leftClickOnBlock(PlayerInteractEvent.LeftClickBlock event) {
-
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
         Player player = event.getEntity();
@@ -84,30 +70,27 @@ public class BlockInteractionEvent {
 
         if (level.isClientSide()) return;
 
-        Optional<Collection<BlockPos>> ultiminePositions;
-
-        if (ModList.get().isLoaded("ftbultimine")) {
-            if (FTBUltimineAPI.api().currentBlockSelection(player).isPresent()) {
-                ultiminePositions = FTBUltimineAPI.api().currentBlockSelection(player);
-            } else {
-                ultiminePositions = Optional.of(List.of(pos));
-            }
-        } else {
-            ultiminePositions = Optional.of(List.of(pos));
-        }
+        Optional<Collection<BlockPos>> ultiminePositions = Optional.of(List.of(pos));
 
         for (BlockPos targetPos : ultiminePositions.orElseThrow()) {
-
-            for (RecipeHolder<BlockInteractionRecipe> match : level.getRecipeManager().getRecipesFor(BlockInteractionRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
-                if (match.value().clickType() == ClickType.LEFT_CLICK && event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.START) {
-                    executeBlockInteractionEvent(level, player, targetPos, hand, match);
-                }
-            }
+            getAllBlockInteractionRecipes(level).forEach(match -> {
+                executeBlockInteractionEvent(level, player, targetPos, hand, match);
+            });
         }
     }
 
-    public static void executeBlockInteractionEvent(Level level, Player player, BlockPos pos, InteractionHand hand, RecipeHolder<BlockInteractionRecipe> match) {
+    private static List<RecipeHolder<BlockInteractionRecipe>> getAllBlockInteractionRecipes(Level level) {
+        return level.getServer()
+                .getRecipeManager()
+                .recipeMap()
+                .values()
+                .stream()
+                .filter(r -> r.value().getType() == InWorldRecipeRecipes.BLOCK_INTERACTION_RECIPE_TYPE.get())
+                .map(r -> (RecipeHolder<BlockInteractionRecipe>) r)
+                .toList();
+    }
 
+    public static void executeBlockInteractionEvent(Level level, Player player, BlockPos pos, InteractionHand hand, RecipeHolder<BlockInteractionRecipe> match) {
         BlockTarget recipeTarget = match.value().targetBlock();
         BlockState levelTargetBlockState = level.getBlockState(pos);
 
@@ -119,12 +102,12 @@ public class BlockInteractionEvent {
             if (recipeHeldItem.test(player.getItemInHand(hand))) {
 
                 BlockState recipeOutputBlockState = match.value().outputBlockState();
-                List<ItemStack> resultItems = match.value().rollResults(level.random);
+                List<ItemStack> resultItems = match.value().rollResults(level.getRandom());
 
-                // Replace the block at the position with the output block state if recipe requires if empty then replace with air
+                // Replace the block at the position with the output block state if specified; otherwise, air
                 level.setBlockAndUpdate(pos, Objects.requireNonNullElseGet(recipeOutputBlockState, Blocks.AIR::defaultBlockState));
 
-                // Damage Item
+                // Damage held item
                 if (match.value().damageHeldItem()) {
                     player.getItemInHand(hand).hurtAndBreak(
                             1,
@@ -133,40 +116,30 @@ public class BlockInteractionEvent {
                     );
                 }
 
-                // Consume Item
+                // Consume held item
                 if (match.value().consumeHeldItem()) {
                     player.getItemInHand(hand).shrink(match.value().heldItem().count());
                 }
 
-                // Item Drops
+                // Handle item drops
                 if (match.value().popItems()) {
                     for (ItemStack itemStack : resultItems) {
-                        if (!itemStack.isEmpty()) {
-                            popOutTheItem(level, pos, itemStack);
-                        }
+                        if (!itemStack.isEmpty()) popOutTheItem(level, pos, itemStack);
                     }
                 } else {
                     for (ItemStack itemStack : resultItems) {
-                        if (!itemStack.isEmpty()) {
-                            player.getInventory().placeItemBackInInventory(itemStack);
-                        }
+                        if (!itemStack.isEmpty()) player.getInventory().placeItemBackInInventory(itemStack);
                     }
                 }
-
-
             }
         }
     }
 
-
     public static void popOutTheItem(Level level, BlockPos blockPos, ItemStack itemStack) {
-
-        Vec3 vec3 = Vec3.atLowerCornerWithOffset(blockPos, 0.5, 0.5, 0.5).offsetRandom(level.random, 0.7F);
-        ItemStack itemstack1 = itemStack.copy();
-        ItemEntity itementity = new ItemEntity(level, vec3.x(), vec3.y(), vec3.z(), itemstack1);
-        itementity.setDefaultPickUpDelay();
-        level.addFreshEntity(itementity);
+        Vec3 vec3 = Vec3.atLowerCornerWithOffset(blockPos, 0.5, 0.5, 0.5).offsetRandom(level.getRandom(), 0.7F);
+        ItemStack copy = itemStack.copy();
+        ItemEntity entity = new ItemEntity(level, vec3.x(), vec3.y(), vec3.z(), copy);
+        entity.setDefaultPickUpDelay();
+        level.addFreshEntity(entity);
     }
-
-
 }

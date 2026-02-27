@@ -1,0 +1,17 @@
+{
+  "type": "inworldrecipes:block_interaction",
+  "click_type": "right",
+  "target_block_state": {
+    "Name": "minecraft:grass_block"
+  },
+  "held_item": {
+    "ingredient": "minecraft:stick"
+  },
+  "output_block_state": {
+    "Name": "minecraft:dirt"
+  },
+  "damage_held_item": false,
+  "consume_held_item": true,
+  "pop_items": false,
+  "ignore_block_state": true
+}

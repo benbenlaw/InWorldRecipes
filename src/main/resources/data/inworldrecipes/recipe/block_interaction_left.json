@@ -1,17 +1,11 @@
 {
   "type": "inworldrecipes:block_interaction",
-  "click_type": "right",
+  "click_type": "left",
   "target_block_state": {
-    "Name": "minecraft:wheat",
-    "Properties": {
-      "age": "7"
-    }
+    "Name": "minecraft:grass_block"
   },
   "held_item": {
-    "item": "minecraft:diamond_sword"
-  },
-  "output_block_state": {
-    "Name": "minecraft:dirt"
+    "ingredient": "minecraft:diamond_sword"
   },
   "results": [
     {
@@ -30,12 +24,5 @@
   "damage_held_item": true,
   "consume_held_item": false,
   "pop_items": false,
-  "ignore_block_state": false
+  "ignore_block_state": true
 }
-{
-  "type": "inworldrecipes:block_interaction",
-    "triggers" [
-    "click_type": "right"
-  ]
-}
-

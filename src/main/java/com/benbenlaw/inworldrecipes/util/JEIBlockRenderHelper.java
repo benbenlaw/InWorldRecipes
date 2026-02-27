@@ -11,6 +11,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.level.block.state.BlockState;
 
 //Move to Core
+
+/*
 public class JEIBlockRenderHelper {
 
     public static void renderBlock(GuiGraphics guiGraphics, BlockState state, int x, int y, float scale) {
@@ -44,3 +46,5 @@ public class JEIBlockRenderHelper {
     }
 
 }
+
+ */

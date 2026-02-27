@@ -4,6 +4,9 @@ Changelog In World Recipes
 
 Reduce the amount of recipe types
 
+#2.0.0
+- Updated to minecraft 26.1 snapshots
+
 1.8.1
 - Fixed crash with particles in conversion recipes
 - Particles in conversion recipes now only show in valid recipes
