@@ -5,10 +5,9 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.165'
+    id 'net.neoforged.moddev' version '2.0.140'
     id 'net.darkhax.curseforgegradle' version '1.1.24'
     id "com.modrinth.minotaur" version "2.+"
-
 }
 
 version = "${minecraft_version}-${mod_version}"
@@ -24,35 +23,52 @@ repositories {
             includeGroup("curse.maven")
         }
     }
+
+    maven {
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+    maven {
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
 }
 base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
-runs {
-    configureEach {
+neoForge {
+    version = project.neo_version
 
-        systemProperty 'forge.logging.markers', 'REGISTRIES'
-        systemProperty 'forge.logging.console.level', 'debug'
-        modSource project.sourceSets.main
+    runs {
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            systemProperty 'forge.logging.console.level', 'debug'
+        }
+
+        client {
+            client()
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        server {
+            server()
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+            programArgument '--nogui'
+        }
+
+        clientData {
+            clientData()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
     }
 
-    client {
-        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
-    }
-
-    server {
-        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
-        programArgument '--nogui'
-    }
-    gameTestServer {
-        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
-    }
-
-    data {
-        programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
     }
 }
 
@@ -60,53 +76,8 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
 
-    implementation "net.neoforged:neoforge:${neo_version}"
-
-    //BBL Core
-    compileOnly "curse.maven:bbl-core-1135181:6486837"
-    runtimeOnly "curse.maven:bbl-core-1135181:6486837"
-
     //JEI
-    compileOnly "curse.maven:jei-238222:5846880"
-    runtimeOnly "curse.maven:jei-238222:5846880"
-
-    //KubeJS
-    compileOnly "curse.maven:kubejs-238086:5631423"
-    runtimeOnly "curse.maven:kubejs-238086:5631423"
-
-    //Rhino
-    compileOnly "curse.maven:rhino-416294:5650008"
-    runtimeOnly "curse.maven:rhino-416294:5650008"
-
-    //Opolis Utilities
-    compileOnly "curse.maven:opolis-utilities-649644:6386754"
-    runtimeOnly "curse.maven:opolis-utilities-649644:6386754"
-
-    //Just Dire Things
-    compileOnly "curse.maven:just-dire-things-1002348:6369120"
-    runtimeOnly "curse.maven:just-dire-things-1002348:6369120"
-
-    //FTB Ultimine
-    compileOnly "curse.maven:ftb-ultimine-forge-386134:7570482"
-    runtimeOnly "curse.maven:ftb-ultimine-forge-386134:7570482"
-
-    //Architectury-api
-    compileOnly "curse.maven:architectury-api-419699:5786327"
-    runtimeOnly "curse.maven:architectury-api-419699:5786327"
-
-    //Mekanism
-    //compileOnly "curse.maven:mekanism-268560:5574951"
-    //runtimeOnly "curse.maven:mekanism-268560:5574951"
-
-    //ftb-library-forge
-    compileOnly "curse.maven:ftb-library-forge-404465:7420412"
-    runtimeOnly "curse.maven:ftb-library-forge-404465:7420412"
-
-    //EMI
-
-    //compileOnly "curse.maven:emi-580555:5619579"
-    //runtimeOnly "curse.maven:emi-580555:5619579"
-
+    implementation("mezz.jei:jei-${jei_mc_version}-neoforge:${jei_version}")
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -162,35 +133,41 @@ idea {
     }
 }
 
-
 tasks.register('publishCurseForge', TaskPublishCurseForge) {
     group "modpublishing"
 
     apiToken = System.getenv("curseforge_token").toString()
 
-    def projectId = 1123257
+    def projectId = curseforge_id
     def mainFile = upload(projectId, jar)
 
     mainFile.changelog = changelog
-    mainFile.addOptional("jei") // JEI
-    mainFile.releaseType = "release"
-    mainFile.gameVersions.addAll("1.21", "1.21.1")
+    mainFile.releaseType = "${release_type}"
+
+    "${release_versions}".split(',').each {
+        mainFile.addGameVersion("${it}")
+    }
+
+    mainFile.addModLoader("neoforge")
+    mainFile.addEnvironment("server", "client")
+
 }
+
 
 tasks.getByName("modrinth").setGroup("modpublishing")
 
 modrinth {
     token = System.getenv("modrinth_token").toString()
-    projectId = "mxPMwdbs"
-    versionType = "release"
-    versionName = "inworldrecipes-" + "$minecraft_version" + "-" + "$mod_version"
+    projectId = "${modrinth_id}"
+    versionType = "${release_type}"
+    versionName = "${mod_id}" + "$minecraft_version" + "-" + "$mod_version"
     uploadFile = jar // With Loom, this MUST be set to `remapJar` instead of `jar`!
 
-    gameVersions.addAll("1.21", "1.21.1")
-
+    gameVersions = "${release_versions}".split(',').collect {e -> e}
     loaders = ["neoforge"]
     changelog = project.changelog
     dependencies {
         optional.project "jei"
     }
 }
+
