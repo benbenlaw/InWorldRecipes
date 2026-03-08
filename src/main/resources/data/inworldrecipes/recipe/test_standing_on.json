@@ -1,0 +1,29 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "standing_on_block": { "Name": "minecraft:diamond_block" }
+    }
+  ],
+  "conditions": [
+    {
+      "held_item": {
+        "ingredient": "minecraft:stick"
+      },
+      "ignore_block_state": true
+    }
+  ],
+  "results": [
+    {
+      "consume_held_item": false,
+      "results": [
+        {
+          "item": {
+            "id": "minecraft:diamond_block",
+            "count": 1
+          }
+        }
+      ]
+    }
+  ]
+}

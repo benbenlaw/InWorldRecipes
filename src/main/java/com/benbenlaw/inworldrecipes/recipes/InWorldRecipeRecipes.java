@@ -17,11 +17,11 @@ public class InWorldRecipeRecipes {
             DeferredRegister.create(BuiltInRegistries.RECIPE_TYPE, InWorldRecipes.MOD_ID);
 
     //Block Interaction Recipe
-    public static final Supplier<RecipeSerializer<BlockInteractionRecipe>> BLOCK_INTERACTION_RECIPE_SERIALIZER =
-            SERIALIZER.register("block_interaction", () -> BlockInteractionRecipe.SERIALIZER);
+    public static final Supplier<RecipeSerializer<WorldRecipe>> WORLD_RECIPE_SERIALIZER =
+            SERIALIZER.register("world_recipe", () -> WorldRecipe.SERIALIZER);
 
-    public static final Supplier<RecipeType<BlockInteractionRecipe>> BLOCK_INTERACTION_RECIPE_TYPE =
-            TYPES.register("block_interaction", () -> BlockInteractionRecipe.TYPE);
+    public static final Supplier<RecipeType<WorldRecipe>> WORLD_RECIPE_TYPE =
+            TYPES.register("world_recipe", () -> WorldRecipe.TYPE);
 
 
     public static void register(IEventBus eventBus) {

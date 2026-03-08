@@ -1,0 +1,31 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "click_type": "left"
+    }
+  ],
+  "conditions": [
+    {
+      "held_item": {
+        "ingredient": "minecraft:diamond"
+      }
+    }
+  ],
+  "results": [
+    {
+      "consume_held_item": false,
+      "block_state": {
+        "Name": "minecraft:dirt"
+      },
+      "results": [
+        {
+          "item": {
+            "id": "minecraft:diamond_block",
+            "count": 1
+          }
+        }
+      ]
+    }
+  ]
+}

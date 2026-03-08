@@ -1,16 +1,21 @@
 package com.benbenlaw.inworldrecipes.event;
 
 import com.benbenlaw.inworldrecipes.InWorldRecipes;
-import com.benbenlaw.inworldrecipes.recipes.BlockInteractionRecipe;
+import com.benbenlaw.inworldrecipes.recipes.WorldRecipe;
 import com.benbenlaw.inworldrecipes.recipes.InWorldRecipeRecipes;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.VisibleForDebug;
+import net.minecraft.server.PlayerAdvancements;
+import net.minecraft.server.ServerAdvancementManager;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeMap;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,7 +26,7 @@ public class RecipeEvents {
 
     @SubscribeEvent
     public static void onDataPackSync(OnDatapackSyncEvent event) {
-        event.sendRecipes(InWorldRecipeRecipes.BLOCK_INTERACTION_RECIPE_TYPE.get());
+        event.sendRecipes(InWorldRecipeRecipes.WORLD_RECIPE_TYPE.get());
     }
 
     @SubscribeEvent
@@ -29,12 +34,15 @@ public class RecipeEvents {
         RecipeMap recipeMap = event.getRecipeMap();
 
         //Block Interaction Recipes
-        Collection<RecipeHolder<BlockInteractionRecipe>> blockInteractionRecipes = recipeMap.byType(InWorldRecipeRecipes.BLOCK_INTERACTION_RECIPE_TYPE.get());
-        Map<Identifier, BlockInteractionRecipe>  blockInteractionRecipeMap = new HashMap<>();
+        Collection<RecipeHolder<WorldRecipe>> worldRecipes = recipeMap.byType(InWorldRecipeRecipes.WORLD_RECIPE_TYPE.get());
+        Map<Identifier, WorldRecipe>  worldRecipeMap = new HashMap<>();
 
-        for (RecipeHolder<BlockInteractionRecipe> holder : blockInteractionRecipes) {
-            blockInteractionRecipeMap.put(holder.id().identifier(), holder.value());
+        for (RecipeHolder<WorldRecipe> holder : worldRecipes) {
+            worldRecipeMap.put(holder.id().identifier(), holder.value());
         }
 
+        ClientRecipeCache.setCachedWorldRecipes(worldRecipeMap);
+
     }
+
 }

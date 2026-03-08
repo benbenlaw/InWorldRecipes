@@ -1,0 +1,55 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "standing_on_block": { "Name": "minecraft:acacia_log" },
+      "click_type": "right"
+    }
+  ],
+  "conditions": [
+    {
+      "held_item": {
+        "ingredient": "minecraft:emerald"
+      },
+      "ignore_block_state": true,
+      "dropped_items": [
+        {
+          "ingredient": "minecraft:dirt",
+          "count": 3
+        }
+      ],
+      "inventory_items": [
+        {
+          "ingredient": "minecraft:oak_log"
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "consume_held_item": false,
+      "consume_inventory_items": true,
+      "consume_dropped_items": true,
+      "results": [
+        {
+          "item": {
+            "id": "minecraft:diamond_block",
+            "count": 4
+          }
+        },
+        {
+          "item": {
+            "id": "minecraft:iron_block",
+            "count": 1
+          }
+        },
+        {
+          "item": {
+            "id": "minecraft:emerald_block",
+            "count": 1
+          }
+        }
+      ]
+    }
+  ]
+}

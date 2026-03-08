@@ -1,0 +1,24 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "click_type": "right",
+      "target_block": { "Name": "minecraft:acacia_log" }
+    }
+  ],
+  "conditions": [
+    {
+      "held_item": {
+        "ingredient": "minecraft:stick"
+      },
+      "ignore_block_state": true
+    }
+  ],
+  "results": [
+    {
+      "block_state": {
+        "Name": "minecraft:diamond_block"
+      }
+    }
+  ]
+}
