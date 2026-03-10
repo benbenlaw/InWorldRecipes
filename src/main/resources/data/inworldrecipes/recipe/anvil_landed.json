@@ -1,0 +1,36 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "anvil_landed": true
+    }
+  ],
+  "conditions": [
+    {
+      "dropped_items": [
+        {
+          "ingredient": "minecraft:dirt",
+          "count": 3
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "block_state": {
+        "Name": "minecraft:dirt"
+      },
+      "results": [
+        {
+          "item": {
+            "id": "minecraft:diamond",
+            "count": 2
+          },
+          "chance": 1
+        }
+      ],
+      "consume_dropped_items": true,
+      "pop_items": true
+    }
+  ]
+}

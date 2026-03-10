@@ -2,6 +2,7 @@ package com.benbenlaw.inworldrecipes.jei;
 
 import com.benbenlaw.inworldrecipes.InWorldRecipes;
 import com.benbenlaw.inworldrecipes.event.ClientRecipeCache;
+import com.benbenlaw.inworldrecipes.recipes.Option;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 
@@ -41,9 +42,9 @@ public class JEIInWorldRecipesPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(WorldRecipeCategory.RECIPE_TYPE, ClientRecipeCache.getCachedWorldRecipes().stream().toList());
 
-
+        registration.addRecipes(WorldRecipeCategory.RECIPE_TYPE, ClientRecipeCache.getCachedWorldRecipes().stream()
+                .filter(recipe -> recipe.options().stream().allMatch(Option::showInJEI))
+                .toList());
     }
-
 }

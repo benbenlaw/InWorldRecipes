@@ -39,5 +39,10 @@
         }
       ]
     }
+  ],
+  "options": [
+    {
+      "show_in_jei": false
+    }
   ]
 }

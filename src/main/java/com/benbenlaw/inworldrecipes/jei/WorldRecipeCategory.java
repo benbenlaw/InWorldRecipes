@@ -31,10 +31,8 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.TargetBlock;
@@ -131,6 +129,24 @@ public class WorldRecipeCategory implements IRecipeCategory<WorldRecipe> {
                         .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
                         .addRichTooltipCallback((recipeSlotView, tooltip) ->
                                 tooltip.add(Component.translatable("jei.inworldrecipes.target_block").withStyle(ChatFormatting.GOLD)));
+                triggerIndex++;
+
+            }
+
+            if (targetBlock != null && targetBlock instanceof BlockTarget.Tag tag) {
+                TagKey<Item> itemTag = TagKey.create(Registries.ITEM, tag.tag().location());
+                List<ItemStack> tagStacks = new ArrayList<>();
+
+                for (Holder<Item> itemHolder : BuiltInRegistries.ITEM.getTagOrEmpty(itemTag)) {
+                    ItemStack stack = new ItemStack(itemHolder.value());
+                    tagStacks.add(stack);
+                }
+
+                builder.addSlot(RecipeIngredientRole.INPUT, x + spacing * triggerIndex, y)
+                        .addItemStacks(tagStacks)
+                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
+                        .addRichTooltipCallback((recipeSlotView, tooltip) ->
+                                tooltip.add(Component.translatable("jei.inworldrecipes.target_block_tag", itemTag.location().toString()).withStyle(ChatFormatting.GOLD)));
                 triggerIndex++;
 
             }

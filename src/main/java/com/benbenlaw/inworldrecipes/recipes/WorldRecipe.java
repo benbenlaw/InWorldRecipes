@@ -4,6 +4,8 @@ import com.benbenlaw.core.recipe.ChanceResult;
 import com.benbenlaw.core.recipe.NoInventoryRecipe;
 import com.benbenlaw.inworldrecipes.util.ClickType;
 import com.benbenlaw.inworldrecipes.util.ClickTypeCodec;
+import com.benbenlaw.inworldrecipes.util.WeatherType;
+import com.benbenlaw.inworldrecipes.util.WeatherTypeCodec;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -26,7 +28,8 @@ public record WorldRecipe(
         Recipe.CommonInfo commonInfo,
         List<Trigger> triggers,
         List<Condition> conditions,
-        List<Result> results
+        List<Result> results,
+        List<Option> options
 
 ) implements Recipe<NoInventoryRecipe> {
 
@@ -37,7 +40,8 @@ public record WorldRecipe(
                     Recipe.CommonInfo.MAP_CODEC.forGetter(WorldRecipe::commonInfo),
                     Codec.list(Trigger.CODEC).fieldOf("triggers").forGetter(WorldRecipe::triggers),
                     Codec.list(Condition.CODEC).fieldOf("conditions").forGetter(WorldRecipe::conditions),
-                    Codec.list(Result.CODEC).fieldOf("results").forGetter(WorldRecipe::results)
+                    Codec.list(Result.CODEC).fieldOf("results").forGetter(WorldRecipe::results),
+                    Codec.list(Option.CODEC).optionalFieldOf("options", List.of()).forGetter(WorldRecipe::options)
             ).apply(instance, WorldRecipe::new
             )
     );
@@ -131,7 +135,7 @@ public record WorldRecipe(
                 }
             }
 
-            Boolean lightningStrike = buffer.readBoolean() ? buffer.readBoolean() : null;
+            boolean lightningStrike = buffer.readBoolean() && buffer.readBoolean();
 
             // Optional standingOnBlock
             BlockTarget standingOnBlock = null;
@@ -144,7 +148,10 @@ public record WorldRecipe(
                 }
             }
 
-            triggers.add(new Trigger(clickType, targetBlock, lightningStrike, standingOnBlock));
+            //Anvil Land
+            boolean anvilLanded = buffer.readBoolean() && buffer.readBoolean();
+
+            triggers.add(new Trigger(clickType, targetBlock, lightningStrike, standingOnBlock, anvilLanded));
         }
 
         // Read conditions
@@ -177,7 +184,11 @@ public record WorldRecipe(
                 }
             }
 
-            conditions.add(new Condition(heldItem, ignoreBlockState, droppedItems, heldItems));
+            //Weather
+            WeatherType weatherType = buffer.readBoolean() ? WeatherTypeCodec.readFromBuffer(buffer) : null;
+
+            conditions.add(new Condition(heldItem, ignoreBlockState, droppedItems, heldItems, weatherType));
+
         }
 
         // Read results
@@ -205,8 +216,20 @@ public record WorldRecipe(
             results.add(new Result(chanceResults, damageHeldItem, consumeHeldItem, popItems, outputBlockState, consumeHeldItems, consumeDroppedItems));
         }
 
+        //Read Options
+
+        int optionCount = buffer.readVarInt();
+        List<Option> options = new ArrayList<>(optionCount);
+        for (int i = 0; i < optionCount; i++) {
+            boolean showInJEI = buffer.readBoolean();
+            boolean onlyVisualRecipe = buffer.readBoolean();
+
+            options.add(new Option(showInJEI, onlyVisualRecipe));
+        }
+
+
         // Return fully reconstructed recipe
-        return new WorldRecipe(commonInfo, triggers, conditions, results);
+        return new WorldRecipe(commonInfo, triggers, conditions, results, options);
     }
 
     private static void write(RegistryFriendlyByteBuf buffer, WorldRecipe recipe) {
@@ -252,6 +275,10 @@ public record WorldRecipe(
                 }
             }
 
+            // Anvil Landed
+            buffer.writeBoolean(trigger.anvilLanded() != null);
+            if (trigger.anvilLanded() != null) buffer.writeBoolean(trigger.anvilLanded());
+
         }
 
         // Write conditions
@@ -279,6 +306,10 @@ public record WorldRecipe(
                 }
             }
 
+            //Weather
+            buffer.writeBoolean(condition.weatherType() != null);
+            if (condition.weatherType() != null) WeatherTypeCodec.writeToBuffer(buffer, condition.weatherType());
+
         }
 
         // Write results
@@ -305,6 +336,13 @@ public record WorldRecipe(
             buffer.writeBoolean(result.consumeInventoryItems());
             buffer.writeBoolean(result.consumeDroppedItems());
 
+        }
+
+        //Write options
+        buffer.writeVarInt(recipe.options().size());
+        for (Option option : recipe.options()) {
+            buffer.writeBoolean(option.showInJEI());
+            buffer.writeBoolean(option.onlyVisualRecipe());
         }
     }
 }

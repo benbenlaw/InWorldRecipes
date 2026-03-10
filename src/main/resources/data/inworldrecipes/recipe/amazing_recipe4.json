@@ -9,9 +9,10 @@
   "conditions": [
     {
       "held_item": {
-        "ingredient": "minecraft:stick"
+        "ingredient": "minecraft:gold_ingot"
       },
-      "ignore_block_state": true
+      "ignore_block_state": true,
+      "weather": "thunder"
     }
   ],
   "results": [

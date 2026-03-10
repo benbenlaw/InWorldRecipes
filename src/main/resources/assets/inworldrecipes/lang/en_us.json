@@ -17,8 +17,9 @@
   "jei.inworldrecipes.held_item": "Held item",
   "jei.inworldrecipes.standing_on": "Must stand on this block",
   "jei.inworldrecipes.lightning": "Requires lightning to strike",
-  "jei.inworldrecipes.target_block": "This block must be targetted",
-  "jei.inworldrecipes.click_type": "Click Tpye: %s",
+  "jei.inworldrecipes.target_block": "This block must be targeted",
+  "jei.inworldrecipes.target_block_tag": "This block tag must be targeted (%s)",
+  "jei.inworldrecipes.click_type": "Click Type: %s",
   "jei.inworldrecipes.world_recipe": "In World Recipe"
 
 

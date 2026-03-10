@@ -27,5 +27,10 @@
         }
       ]
     }
+  ],
+  "options": [
+    {
+      "only_visual_recipe": true
+    }
   ]
 }

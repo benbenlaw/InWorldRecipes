@@ -3,9 +3,14 @@ Changelog In World Recipes
 //In World Recipes for 26.1
 
 Reduce the amount of recipe types
+ANVIL TRIGGER
+WEATHER CONDITIONS
 
 #2.0.0
 - Updated to minecraft 26.1 snapshots
+- Removed all recipe types
+- Added world_recipe type, this is a more flexible recipe system which allows for various different triggers, conditions and results to be used in a single recipe type
+- Wiki updated to reflect new changes
 
 1.8.1
 - Fixed crash with particles in conversion recipes

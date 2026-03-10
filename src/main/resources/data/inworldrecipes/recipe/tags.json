@@ -1,0 +1,25 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "click_type": "left",
+      "target_block": "#minecraft:logs"
+    }
+  ],
+  "conditions": [
+    {
+      "held_item": {
+        "ingredient": "minecraft:iron_ingot"
+      },
+      "ignore_block_state": true
+    }
+  ],
+  "results": [
+    {
+      "consume_held_item": true,
+      "block_state": {
+        "Name": "minecraft:obsidian"
+      }
+    }
+  ]
+}

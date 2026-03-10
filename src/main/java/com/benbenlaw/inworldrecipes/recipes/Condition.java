@@ -1,5 +1,7 @@
 package com.benbenlaw.inworldrecipes.recipes;
 
+import com.benbenlaw.inworldrecipes.util.WeatherType;
+import com.benbenlaw.inworldrecipes.util.WeatherTypeCodec;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
@@ -13,7 +15,8 @@ public record Condition(
         @Nullable SizedIngredient heldItem,
         boolean ignoreBlockState,
         @Nullable List<SizedIngredient> droppedItems,
-        @Nullable List<SizedIngredient> inventoryItems
+        @Nullable List<SizedIngredient> inventoryItems,
+        @Nullable WeatherType weatherType
 
 ) {
 
@@ -22,14 +25,17 @@ public record Condition(
                     SizedIngredient.NESTED_CODEC.optionalFieldOf("held_item").forGetter(condition -> Optional.ofNullable(condition.heldItem)),
                     Codec.BOOL.optionalFieldOf("ignore_block_state").forGetter(condition -> Optional.of(condition.ignoreBlockState)),
                     Codec.list(SizedIngredient.NESTED_CODEC).optionalFieldOf("dropped_items").forGetter(condition -> Optional.ofNullable(condition.droppedItems)),
-                    Codec.list(SizedIngredient.NESTED_CODEC).optionalFieldOf("inventory_items").forGetter(condition -> Optional.ofNullable(condition.inventoryItems))
+                    Codec.list(SizedIngredient.NESTED_CODEC).optionalFieldOf("inventory_items").forGetter(condition -> Optional.ofNullable(condition.inventoryItems)),
+                    WeatherTypeCodec.WEATHER_TYPE_CODEC.optionalFieldOf("weather").forGetter(condition -> Optional.ofNullable(condition.weatherType))
 
-            ).apply(instance, (heldOpt, ignoreBlockStateOpt, droppedItems, heldItems) ->
+            ).apply(instance, (heldOpt, ignoreBlockStateOpt, droppedItems, heldItems, weatherOpt) ->
                     new Condition(
                             heldOpt.orElse(null),
                             ignoreBlockStateOpt.orElse(false),
                             droppedItems.orElse(null),
-                            heldItems.orElse(null)
+                            heldItems.orElse(null),
+                            weatherOpt.orElse(null)
+
                     ))
     );
 }
