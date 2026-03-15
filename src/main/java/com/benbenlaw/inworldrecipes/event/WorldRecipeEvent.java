@@ -9,6 +9,7 @@ import com.benbenlaw.inworldrecipes.util.ClickType;
 import com.benbenlaw.inworldrecipes.util.WeatherType;
 import com.benbenlaw.inworldrecipes.util.WeatherUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -59,6 +60,7 @@ public class WorldRecipeEvent {
     /* -------------------- CORE HANDLER -------------------- */
     public static void handle(Level level, Player player, BlockPos pos, InteractionHand hand, ClickType clickType) {
         if (level.isClientSide()) return;
+
         getAllBlockInteractionRecipes(level).forEach(recipe ->
                 execute(level, player, pos, hand, clickType, recipe)
         );
