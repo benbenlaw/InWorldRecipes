@@ -2,9 +2,12 @@ Changelog In World Recipes
 
 //In World Recipes for 26.1
 
-Reduce the amount of recipe types
 ANVIL TRIGGER
-WEATHER CONDITIONS
+
+# 2.1.0
+- Added Weather Condition, can be "clear", "rain" or "thunder", "snow"
+- Added Anvil Trigger very wip do not use
+- Improved JEI
 
 #2.0.0
 - Updated to minecraft 26.1 snapshots

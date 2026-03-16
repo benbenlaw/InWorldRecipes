@@ -9,7 +9,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
 
-public class InWorldRecipeRecipes {
+public class InWorldRecipesRecipes {
 
     public static final DeferredRegister<RecipeSerializer<?>> SERIALIZER =
             DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, InWorldRecipes.MOD_ID);

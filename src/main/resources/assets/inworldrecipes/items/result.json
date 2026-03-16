@@ -1,0 +1,48 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:component",
+    "component": "minecraft:custom_name",
+    "cases": [
+      {
+        "when": "Consume Dropped Items",
+        "model": {
+          "type": "minecraft:model",
+          "model": "inworldrecipes:item/result/consume_dropped_items"
+        }
+      },
+      {
+        "when": "Consume Held Item",
+        "model": {
+          "type": "minecraft:model",
+          "model": "inworldrecipes:item/result/consume_held_item"
+        }
+      },
+      {
+        "when": "Consume Inventory Items",
+        "model": {
+          "type": "minecraft:model",
+          "model": "inworldrecipes:item/result/consume_inventory_items"
+        }
+      },
+      {
+        "when": "Damage Held Item",
+        "model": {
+          "type": "minecraft:model",
+          "model": "inworldrecipes:item/result/damage_held_item"
+        }
+      },
+      {
+        "when": "Pop Items",
+        "model": {
+          "type": "minecraft:model",
+          "model": "inworldrecipes:item/result/pop_items"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "inworldrecipes:item/result"
+    }
+  }
+}

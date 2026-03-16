@@ -1,0 +1,41 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:component",
+    "component": "minecraft:custom_name",
+    "cases": [
+      {
+        "when": "Anvil",
+        "model": {
+          "type": "minecraft:model",
+          "model": "inworldrecipes:item/trigger/anvil"
+        }
+      },
+      {
+        "when": "Left Click",
+        "model": {
+          "type": "minecraft:model",
+          "model": "inworldrecipes:item/trigger/left_click"
+        }
+      },
+      {
+        "when": "Right Click",
+        "model": {
+          "type": "minecraft:model",
+          "model": "inworldrecipes:item/trigger/right_click"
+        }
+      },
+      {
+        "when": "Lightning",
+        "model": {
+          "type": "minecraft:model",
+          "model": "inworldrecipes:item/trigger/lightning"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "inworldrecipes:item/trigger"
+    }
+  }
+}

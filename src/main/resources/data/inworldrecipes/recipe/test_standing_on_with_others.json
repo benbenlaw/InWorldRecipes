@@ -3,7 +3,9 @@
   "triggers": [
     {
       "standing_on_block": { "Name": "minecraft:acacia_log" },
-      "click_type": "right"
+      "click_type": "right",
+      "anvil_landed": true,
+      "target_block": { "Name": "minecraft:diamond_block" }
     }
   ],
   "conditions": [

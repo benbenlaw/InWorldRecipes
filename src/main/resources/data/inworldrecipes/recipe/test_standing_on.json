@@ -22,6 +22,30 @@
             "id": "minecraft:diamond_block",
             "count": 1
           }
+        },
+        {
+          "item": {
+            "id": "minecraft:diamond_block",
+            "count": 1
+          }
+        },
+        {
+          "item": {
+            "id": "minecraft:diamond_block",
+            "count": 1
+          }
+        },
+        {
+          "item": {
+            "id": "minecraft:diamond_block",
+            "count": 1
+          }
+        },
+        {
+          "item": {
+            "id": "minecraft:diamond_block",
+            "count": 1
+          }
         }
       ]
     }

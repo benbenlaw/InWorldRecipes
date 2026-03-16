@@ -3,14 +3,18 @@ package com.benbenlaw.inworldrecipes.jei;
 import com.benbenlaw.core.recipe.ChanceResult;
 import com.benbenlaw.inworldrecipes.InWorldRecipes;
 import com.benbenlaw.inworldrecipes.event.ClientRecipeCache;
+import com.benbenlaw.inworldrecipes.item.InWorldRecipesItems;
 import com.benbenlaw.inworldrecipes.recipes.*;
 import com.benbenlaw.inworldrecipes.util.ClickType;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotDrawablesView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.gui.widgets.IScrollBoxWidget;
+import mezz.jei.api.gui.widgets.IScrollGridWidget;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -24,6 +28,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -48,8 +53,8 @@ public class WorldRecipeCategory implements IRecipeCategory<WorldRecipe> {
     public final static Identifier TEXTURE = InWorldRecipes.identifier("textures/gui/world_recipe_jei.png");
     static final IRecipeType<WorldRecipe> RECIPE_TYPE = IRecipeType.create(InWorldRecipes.MOD_ID, "world_recipe", WorldRecipe.class);
 
-    private final int width = 146;
-    private final int height = 90;
+    private final int width = 170;
+    private final int height = 68;
     private final IDrawable icon;
 
     @Override
@@ -100,218 +105,297 @@ public class WorldRecipeCategory implements IRecipeCategory<WorldRecipe> {
     public void setRecipe(IRecipeLayoutBuilder builder, WorldRecipe recipe, IFocusGroup focuses) {
 
         int spacing = 18;
-        int startX = 2;
-        int triggersY = 13;
-        int conditionsY = triggersY * 2 + spacing;
-        int resultsY = triggersY * 3 + spacing * 2;
 
-        // --- Place Triggers ---
+        int triggersStartX = 2;
+        int conditionsStartX = 60;
+        int resultsStartX = 118;
+
+        int row1Y = 13;
+        int row2Y = row1Y + spacing;
+
+        /* ---------------- TRIGGERS ---------------- */
+
         int triggerIndex = 0;
+
         for (Trigger trigger : recipe.triggers()) {
-            int x = startX + spacing * triggerIndex;
-            int y = triggersY;
 
-            // ClickType slot (optional)
+            ItemStack leftClick = new ItemStack(InWorldRecipesItems.TRIGGER.asItem());
+            leftClick.set(DataComponents.CUSTOM_NAME, Component.literal("Left Click"));
+
+            ItemStack rightClick = new ItemStack(InWorldRecipesItems.TRIGGER.asItem());
+            rightClick.set(DataComponents.CUSTOM_NAME, Component.literal("Right Click"));
+
+            // Click Type
             if (trigger.clickType() != null) {
+
+                int col = triggerIndex % 3;
+                int row = triggerIndex / 3;
+
+                int x = triggersStartX + col * spacing;
+                int y = row == 0 ? row1Y : row2Y;
+
                 builder.addSlot(RecipeIngredientRole.INPUT, x, y)
-                        .add(Items.BARRIER)
-                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                        .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                                tooltip.add(Component.translatable("jei.inworldrecipes.click_type", Component.translatable("jei.inworldrecipes." + trigger.clickType().name().toLowerCase())).withStyle(ChatFormatting.GOLD)));
+                        .add(trigger.clickType() == ClickType.LEFT_CLICK ? leftClick : rightClick)
+                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1);
+
                 triggerIndex++;
             }
 
-            // TargetBlock slot
+            // Target Block
             BlockTarget targetBlock = trigger.targetBlock();
-            if (targetBlock != null && targetBlock instanceof BlockTarget.Single single) {
-                builder.addSlot(RecipeIngredientRole.INPUT, x + spacing * triggerIndex, y)
-                        .add(single.blockState().getBlock().asItem().getDefaultInstance())
-                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                        .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                                tooltip.add(Component.translatable("jei.inworldrecipes.target_block").withStyle(ChatFormatting.GOLD)));
-                triggerIndex++;
 
+            if (targetBlock instanceof BlockTarget.Single single) {
+
+                int col = triggerIndex % 3;
+                int row = triggerIndex / 3;
+
+                int x = triggersStartX + col * spacing;
+                int y = row == 0 ? row1Y : row2Y;
+
+                builder.addSlot(RecipeIngredientRole.INPUT, x, y)
+                        .add(single.blockState().getBlock().asItem().getDefaultInstance())
+                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1);
+
+                triggerIndex++;
             }
 
-            if (targetBlock != null && targetBlock instanceof BlockTarget.Tag tag) {
-                TagKey<Item> itemTag = TagKey.create(Registries.ITEM, tag.tag().location());
-                List<ItemStack> tagStacks = new ArrayList<>();
+            if (targetBlock instanceof BlockTarget.Tag tag) {
 
-                for (Holder<Item> itemHolder : BuiltInRegistries.ITEM.getTagOrEmpty(itemTag)) {
-                    ItemStack stack = new ItemStack(itemHolder.value());
-                    tagStacks.add(stack);
+                TagKey<Item> itemTag = TagKey.create(Registries.ITEM, tag.tag().location());
+                List<ItemStack> stacks = new ArrayList<>();
+
+                for (Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(itemTag)) {
+                    stacks.add(new ItemStack(holder.value()));
                 }
 
-                builder.addSlot(RecipeIngredientRole.INPUT, x + spacing * triggerIndex, y)
-                        .addItemStacks(tagStacks)
-                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                        .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                                tooltip.add(Component.translatable("jei.inworldrecipes.target_block_tag", itemTag.location().toString()).withStyle(ChatFormatting.GOLD)));
-                triggerIndex++;
+                int col = triggerIndex % 3;
+                int row = triggerIndex / 3;
 
-            }
+                int x = triggersStartX + col * spacing;
+                int y = row == 0 ? row1Y : row2Y;
 
-            // LightningStrike slot
-            if (trigger.lightningStrike() != null && trigger.lightningStrike()) {
-                builder.addSlot(RecipeIngredientRole.INPUT, x + spacing * triggerIndex, y)
-                        .add(Items.BARRIER)
-                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                        .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                                tooltip.add(Component.translatable("jei.inworldrecipes.lightning").withStyle(ChatFormatting.GOLD)));
+                builder.addSlot(RecipeIngredientRole.INPUT, x, y)
+                        .addItemStacks(stacks)
+                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1);
+
                 triggerIndex++;
             }
 
-            // StandingOnBlock slot
-            BlockTarget standingOnBlock = trigger.standingOnBlock();
-            if (standingOnBlock != null && standingOnBlock instanceof BlockTarget.Single single) {
-                builder.addSlot(RecipeIngredientRole.INPUT, x + spacing * triggerIndex, y)
+            // Lightning
+            if (Boolean.TRUE.equals(trigger.lightningStrike())) {
+
+                ItemStack lightning = new ItemStack(InWorldRecipesItems.TRIGGER.asItem());
+                lightning.set(DataComponents.CUSTOM_NAME, Component.literal("Lightning"));
+
+                int col = triggerIndex % 3;
+                int row = triggerIndex / 3;
+
+                int x = triggersStartX + col * spacing;
+                int y = row == 0 ? row1Y : row2Y;
+
+                builder.addSlot(RecipeIngredientRole.INPUT, x, y)
+                        .add(lightning)
+                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1);
+
+                triggerIndex++;
+            }
+
+            // Standing On Block
+            BlockTarget standing = trigger.standingOnBlock();
+
+            if (standing instanceof BlockTarget.Single single) {
+
+                int col = triggerIndex % 3;
+                int row = triggerIndex / 3;
+
+                int x = triggersStartX + col * spacing;
+                int y = row == 0 ? row1Y : row2Y;
+
+                builder.addSlot(RecipeIngredientRole.INPUT, x, y)
                         .add(single.blockState().getBlock().asItem().getDefaultInstance())
-                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                        .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                                tooltip.add(Component.translatable("jei.inworldrecipes.standing_on").withStyle(ChatFormatting.GOLD)));
+                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1);
+
                 triggerIndex++;
             }
         }
 
-        // --- Place Conditions ---
-        int conditionIndex = 0;
-        int x = startX;
-        int y = conditionsY;
 
+        /* ---------------- CONDITIONS ---------------- */
+
+        int conditionIndex = 0;
         var condition = recipe.conditions().getFirst();
 
-        // Held Item
         if (condition.heldItem() != null) {
-            builder.addSlot(RecipeIngredientRole.INPUT, x, y)
+
+            int col = conditionIndex % 3;
+            int row = conditionIndex / 3;
+
+            int x = conditionsStartX + col * spacing;
+            int y = row == 0 ? row1Y : row2Y;
+
+            builder.addSlot(RecipeIngredientRole.RENDER_ONLY, x, y)
                     .add(condition.heldItem().ingredient())
-                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                    .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                            tooltip.add(Component.translatable("jei.inworldrecipes.held_item").withStyle(ChatFormatting.GOLD)));
+                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1);
+
             conditionIndex++;
         }
 
-        // Ignore Block State
         if (condition.ignoreBlockState()) {
-            builder.addSlot(RecipeIngredientRole.INPUT, x + spacing * conditionIndex, y)
-                    .add(Items.BARRIER)
-                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                    .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                            tooltip.add(Component.translatable("jei.inworldrecipes.ignore_block_state").withStyle(ChatFormatting.GOLD)));
+
+            ItemStack stack = new ItemStack(InWorldRecipesItems.CONDITION.asItem());
+            stack.set(DataComponents.CUSTOM_NAME, Component.literal("Ignore Block State"));
+
+            int col = conditionIndex % 3;
+            int row = conditionIndex / 3;
+
+            int x = conditionsStartX + col * spacing;
+            int y = row == 0 ? row1Y : row2Y;
+
+            builder.addSlot(RecipeIngredientRole.RENDER_ONLY, x, y)
+                    .add(stack)
+                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1);
+
             conditionIndex++;
         }
 
-        // Dropped Items
-        if (condition.droppedItems() != null && !condition.droppedItems().isEmpty()) {
-            for (SizedIngredient droppedItem : condition.droppedItems()) {
-                builder.addSlot(RecipeIngredientRole.INPUT, x + spacing * conditionIndex, y)
-                        .add(new ItemStack(droppedItem.ingredient().getValues().get(0).value(), droppedItem.count()))
-                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                        .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                                tooltip.add(Component.translatable("jei.inworldrecipes.dropped_item").withStyle(ChatFormatting.GOLD)));
+        if (condition.droppedItems() != null) {
+            for (SizedIngredient dropped : condition.droppedItems()) {
+
+                int col = conditionIndex % 3;
+                int row = conditionIndex / 3;
+
+                int x = conditionsStartX + col * spacing;
+                int y = row == 0 ? row1Y : row2Y;
+
+                builder.addSlot(RecipeIngredientRole.RENDER_ONLY, x, y)
+                        .add(new ItemStack(dropped.ingredient().getValues().get(0).value(), dropped.count()))
+                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1);
+
                 conditionIndex++;
             }
         }
 
-        // Inventory Items
-        if (condition.inventoryItems() != null && !condition.inventoryItems().isEmpty()) {
-            for (SizedIngredient inventoryItem : condition.inventoryItems()) {
-                builder.addSlot(RecipeIngredientRole.INPUT, x + spacing * conditionIndex, y)
-                        .add(inventoryItem.ingredient())
-                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                        .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                                tooltip.add(Component.translatable("jei.inworldrecipes.inventory_item").withStyle(ChatFormatting.GOLD)));
-                conditionIndex++;
-            }
+        if (condition.weatherType() != null) {
+
+            ItemStack weather = new ItemStack(InWorldRecipesItems.CONDITION.asItem());
+            weather.set(DataComponents.CUSTOM_NAME, Component.literal("Weather"));
+
+            int col = conditionIndex % 3;
+            int row = conditionIndex / 3;
+
+            int x = conditionsStartX + col * spacing;
+            int y = row == 0 ? row1Y : row2Y;
+
+            builder.addSlot(RecipeIngredientRole.RENDER_ONLY, x, y)
+                    .add(weather)
+                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1);
+
+            conditionIndex++;
         }
 
-        // --- Place Results ---
+
+        /* ---------------- RESULTS ---------------- */
+
         int resultIndex = 0;
-        if (recipe.results().getFirst().chanceResults() != null && !recipe.results().getFirst().chanceResults().isEmpty()) {
-            for (ChanceResult chanceResult : Objects.requireNonNull(recipe.results().getFirst().chanceResults())) {
-                int displayChance = (int) (chanceResult.chance() * 100);
-                builder.addSlot(RecipeIngredientRole.OUTPUT, x + spacing * resultIndex, resultsY)
-                        .add(chanceResult.template().create())
-                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                        .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                                tooltip.add(Component.translatable("jei.inworldrecipes.chance", displayChance).withStyle(ChatFormatting.GOLD)));
+        var result = recipe.results().getFirst();
+
+        if (result.chanceResults() != null) {
+            for (ChanceResult chance : result.chanceResults()) {
+
+                int col = resultIndex % 3;
+                int row = resultIndex / 3;
+
+                int x = resultsStartX + col * spacing;
+                int y = row == 0 ? row1Y : row2Y;
+
+                builder.addSlot(RecipeIngredientRole.OUTPUT, x, y)
+                        .add(chance.template().create())
+                        .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1);
+
                 resultIndex++;
             }
         }
 
-        if (recipe.results().getFirst().damageHeldItem()) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, x + spacing * resultIndex, resultsY)
-                    .add(Items.BARRIER)
-                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                    .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                            tooltip.add(Component.translatable("jei.inworldrecipes.damage_held_item").withStyle(ChatFormatting.GOLD)));
+        if (result.damageHeldItem()) {
+
+            ItemStack stack = new ItemStack(InWorldRecipesItems.RESULT.asItem());
+            stack.set(DataComponents.CUSTOM_NAME, Component.literal("Damage Held Item"));
+
+            int col = resultIndex % 3;
+            int row = resultIndex / 3;
+
+            int x = resultsStartX + col * spacing;
+            int y = row == 0 ? row1Y : row2Y;
+
+            builder.addSlot(RecipeIngredientRole.OUTPUT, x, y)
+                    .add(stack)
+                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1);
+
             resultIndex++;
         }
 
-        if (recipe.results().getFirst().consumeHeldItem()) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, x + spacing * resultIndex, resultsY)
-                    .add(Items.BARRIER)
-                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                    .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                            tooltip.add(Component.translatable("jei.inworldrecipes.consume_held_item").withStyle(ChatFormatting.GOLD)));
+        if (result.consumeHeldItem()) {
+
+            ItemStack stack = new ItemStack(InWorldRecipesItems.RESULT.asItem());
+            stack.set(DataComponents.CUSTOM_NAME, Component.literal("Consume Held Item"));
+
+            int col = resultIndex % 3;
+            int row = resultIndex / 3;
+
+            int x = resultsStartX + col * spacing;
+            int y = row == 0 ? row1Y : row2Y;
+
+            builder.addSlot(RecipeIngredientRole.OUTPUT, x, y)
+                    .add(stack)
+                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1);
+
             resultIndex++;
         }
-
-        if (recipe.results().getFirst().popItems()) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, x + spacing * resultIndex, resultsY)
-                    .add(Items.BARRIER)
-                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                    .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                            tooltip.add(Component.translatable("jei.inworldrecipes.pop_items").withStyle(ChatFormatting.GOLD)));
-            resultIndex++;
-        }
-
-        if (recipe.results().getFirst().outputBlockState() != null) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, x + spacing * resultIndex, resultsY)
-                    .add(new ItemStack(recipe.results().getFirst().outputBlockState().getBlock()))
-                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                    .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                            tooltip.add(Component.translatable("jei.inworldrecipes.output_block_state").withStyle(ChatFormatting.GOLD)));
-            resultIndex++;
-        }
-
-        if (recipe.results().getFirst().consumeInventoryItems()) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, x + spacing * resultIndex, resultsY)
-                    .add(Items.BARRIER)
-                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                    .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                            tooltip.add(Component.translatable("jei.inworldrecipes.consume_inventory_items").withStyle(ChatFormatting.GOLD)));
-            resultIndex++;
-        }
-
-        if (recipe.results().getFirst().consumeDroppedItems()) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, x + spacing * resultIndex, resultsY)
-                    .add(Items.BARRIER)
-                    .setBackground(JEIInWorldRecipesPlugin.slotDrawable, -1, -1)
-                    .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                            tooltip.add(Component.translatable("jei.inworldrecipes.consume_dropped_items").withStyle(ChatFormatting.GOLD)));
-            resultIndex++;
-        }
-
-
     }
 
     @Override
     public void draw(WorldRecipe recipe, IRecipeSlotsView slots, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, 0, 0, width, height, width, height);
 
+        String triggerSize = Component.translatable("jei.inworldrecipes.triggers").getString();
         guiGraphics.drawString(Minecraft.getInstance().font,
                 Component.translatable("jei.inworldrecipes.triggers").withStyle(ChatFormatting.BLACK),
-                0, 0, 0xFFFFFFFF, false);
+                26 - Minecraft.getInstance().font.width(triggerSize) / 2, 0, 0xFFFFFFFF, false);
 
+        String conditionSize = Component.translatable("jei.inworldrecipes.conditions").getString();
         guiGraphics.drawString(Minecraft.getInstance().font,
                 Component.translatable("jei.inworldrecipes.conditions").withStyle(ChatFormatting.BLACK),
-                0, 32, 0xFFFFFFFF, false);
+                86 - Minecraft.getInstance().font.width(conditionSize) / 2, 0, 0xFFFFFFFF, false);
 
+        String resultSize = Component.translatable("jei.inworldrecipes.results").getString();
         guiGraphics.drawString(Minecraft.getInstance().font,
                 Component.translatable("jei.inworldrecipes.results").withStyle(ChatFormatting.BLACK),
-                0, 64, 0xFFFFFFFF, false);
+                144 - Minecraft.getInstance().font.width(resultSize) / 2, 0, 0xFFFFFFFF, false);
 
 
+    }
+
+    public void createRecipeExtras(IRecipeExtrasBuilder builder, WorldRecipe recipe, IFocusGroup focuses) {
+
+        IRecipeSlotDrawablesView recipeSlots = builder.getRecipeSlots();
+        List<IRecipeSlotDrawable> triggerSlots = recipeSlots.getSlots(RecipeIngredientRole.INPUT);
+        List<IRecipeSlotDrawable> conditionSlots = recipeSlots.getSlots(RecipeIngredientRole.RENDER_ONLY);
+        List<IRecipeSlotDrawable> resultSlots = recipeSlots.getSlots(RecipeIngredientRole.OUTPUT);
+
+        if (triggerSlots.size() > 6) {
+            IScrollGridWidget triggersGrid = builder.addScrollGridWidget(triggerSlots, 2, 3);
+            triggersGrid.setPosition(2, 13);
+        }
+
+        if (conditionSlots.size() > 6) {
+            IScrollGridWidget conditionsGrid = builder.addScrollGridWidget(conditionSlots, 2, 3);
+            conditionsGrid.setPosition(60, 13);
+        }
+
+        if (resultSlots.size() > 6) {
+            IScrollGridWidget resultsGrid = builder.addScrollGridWidget(resultSlots, 2, 3);
+            resultsGrid.setPosition(118, 13);
+        }
     }
 }
 

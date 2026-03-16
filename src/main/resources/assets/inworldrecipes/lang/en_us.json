@@ -20,7 +20,6 @@
   "jei.inworldrecipes.target_block": "This block must be targeted",
   "jei.inworldrecipes.target_block_tag": "This block tag must be targeted (%s)",
   "jei.inworldrecipes.click_type": "Click Type: %s",
-  "jei.inworldrecipes.world_recipe": "In World Recipe"
-
-
+  "jei.inworldrecipes.world_recipe": "In World Recipe",
+  "jei.inworldrecipes.weather_condition": "Requires %s as the weather"
 }
