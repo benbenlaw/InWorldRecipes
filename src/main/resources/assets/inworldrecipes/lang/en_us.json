@@ -1,25 +1,51 @@
 {
+  "jei.inworldrecipes.dropped_items": "Dropped Items",
+  "jei.inworldrecipes.held_item": "Held item",
+  "jei.inworldrecipes.inventory_items": "Required in Inventory",
+  "jei.inworldrecipes.weather": "Weather",
+  "jei.inworldrecipes.entity": "Required Entities",
+
+  "jei.inworldrecipes.block_state": "Placed Block",
+  "jei.inworldrecipes.chance_results": "Chance Results",
+  "jei.inworldrecipes.consume_held_item": "Consumes held items",
+  "jei.inworldrecipes.consume_dropped_items": "Consumes required dropped items",
+  "jei.inworldrecipes.consume_inventory_items": "Consumes required items from inventory",
+  "jei.inworldrecipes.damage_held_item": "Damages held item",
+  "jei.inworldrecipes.message": "Message",
+
+  "jei.inworldrecipes.block_landed": "Block Landed",
+  "jei.inworldrecipes.chat_message": "Send Chat Message",
+  "jei.inworldrecipes.click_type": "Click Type",
+  "jei.inworldrecipes.block_target": "Target Block",
+  "jei.inworldrecipes.standing_on": "Must stand on this block",
+  "jei.inworldrecipes.lightning": "Requires lightning to strike",
+
+  "jei.inworldrecipes.to_inventory": "Placed in Inventory",
+
+  "weather.inworldrecipes.clear": "Clear",
+  "weather.inworldrecipes.rain": "Rain",
+  "weather.inworldrecipes.thunder": "Thunder",
+  "weather.inworldrecipes.snow": "Snow",
+  "jei.inworldrecipes.damage": "Damage",
+
+
+
+
   "jei.inworldrecipes.left_click": "Left Click",
   "jei.inworldrecipes.right_click": "Right Click",
   "jei.inworldrecipes.triggers": "Triggers",
   "jei.inworldrecipes.conditions": "Conditions",
   "jei.inworldrecipes.results": "Results",
-  "jei.inworldrecipes.consume_dropped_items": "Consumes required dropped items",
-  "jei.inworldrecipes.consume_inventory_items": "Consumes required items from inventory",
+
   "jei.inworldrecipes.output_block_state": "Replaces block with this block",
   "jei.inworldrecipes.pop_items": "Any resulting items are placed in world",
-  "jei.inworldrecipes.consume_held_item": "Consumes held items",
-  "jei.inworldrecipes.damage_held_item": "Damages held item",
   "jei.inworldrecipes.chance": "Chance: %s",
-  "jei.inworldrecipes.inventory_item": "Required in inventory",
   "jei.inworldrecipes.dropped_item": "Required in world as a dropped item",
   "jei.inworldrecipes.ignore_block_state": "Ignores block states",
-  "jei.inworldrecipes.held_item": "Held item",
-  "jei.inworldrecipes.standing_on": "Must stand on this block",
-  "jei.inworldrecipes.lightning": "Requires lightning to strike",
+
   "jei.inworldrecipes.target_block": "This block must be targeted",
   "jei.inworldrecipes.target_block_tag": "This block tag must be targeted (%s)",
-  "jei.inworldrecipes.click_type": "Click Type: %s",
+
   "jei.inworldrecipes.world_recipe": "In World Recipe",
   "jei.inworldrecipes.weather_condition": "Requires %s as the weather"
 }

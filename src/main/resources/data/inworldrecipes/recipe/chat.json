@@ -1,0 +1,35 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "type": "inworldrecipes:chat_message",
+      "message": "Hi Chat"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "inworldrecipes:held_item",
+      "ingredient": {
+        "ingredient": "minecraft:coal",
+        "count": 64
+      }
+    }
+  ],
+  "results": [
+    {
+      "type": "inworldrecipes:chance_results",
+      "results": [
+        { "item": {
+          "id": "minecraft:diamond"
+        },
+          "chance": 1.0
+        }
+      ]
+    },
+    {
+      "type": "inworldrecipes:message",
+      "message": "Chat is amazing!",
+      "action_bar": true
+    }
+  ]
+}

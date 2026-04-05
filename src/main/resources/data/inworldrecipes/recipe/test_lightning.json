@@ -1,0 +1,57 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "type": "inworldrecipes:lightning"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "inworldrecipes:dropped_items",
+      "items": [
+        {
+          "ingredient": "minecraft:dirt",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "type": "inworldrecipes:inventory_items",
+      "items": [
+        {
+          "ingredient": "minecraft:dirt",
+          "count": 3
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "type": "inworldrecipes:block_state",
+      "block_state": {
+        "Name": "minecraft:emerald_block"
+      }
+    },
+    {
+      "type": "inworldrecipes:chance_results",
+      "add_to_inventory": true,
+      "results": [
+        {
+          "item": {
+            "id": "minecraft:diamond",
+            "count": 2
+          },
+          "chance": 1.0
+        }
+      ]
+    },
+    {
+      "type": "inworldrecipes:consume_dropped_items"
+    }
+  ],
+  "options": [
+    {
+      "show_in_jei": true
+    }
+  ]
+}

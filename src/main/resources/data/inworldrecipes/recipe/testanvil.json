@@ -1,0 +1,48 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "type": "inworldrecipes:block_landed",
+      "block": "minecraft:sand"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "inworldrecipes:dropped_items",
+      "items": [
+        {
+          "ingredient": "minecraft:dirt",
+          "count": 3
+        },
+        {
+          "ingredient": "minecraft:stone",
+          "count": 3
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "type": "inworldrecipes:block_state",
+      "block_state": {
+        "Name": "minecraft:dirt"
+      }
+    },
+    {
+      "type": "inworldrecipes:chance_results",
+      "add_to_inventory": false,
+      "results": [
+        {
+          "item": {
+            "id": "minecraft:diamond",
+            "count": 2
+          },
+          "chance": 1.0
+        }
+      ]
+    },
+    {
+      "type": "inworldrecipes:consume_dropped_items"
+    }
+  ]
+}

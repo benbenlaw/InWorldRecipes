@@ -1,5 +1,6 @@
 package com.benbenlaw.inworldrecipes.util;
 
+import com.benbenlaw.inworldrecipes.recipe.util.WeatherType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 

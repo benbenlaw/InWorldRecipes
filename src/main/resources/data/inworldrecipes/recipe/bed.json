@@ -1,0 +1,38 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "type": "inworldrecipes:chat_message",
+      "message": "give me bed plz"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "inworldrecipes:held_item",
+      "ingredient": {
+        "ingredient": "minecraft:coal",
+        "count": 1
+      }
+    }
+  ],
+  "results": [
+    {
+      "type": "inworldrecipes:chance_results",
+      "results": [
+        { "item": {
+          "id": "minecraft:white_bed"
+        },
+          "chance": 1.0
+        }
+      ]
+    },
+    {
+      "type": "inworldrecipes:message",
+      "message": "The spirits have heard your call... heres a bed you can sleep in",
+      "action_bar": true
+    },
+    {
+      "type": "inworldrecipes:consume_held_item"
+    }
+  ]
+}

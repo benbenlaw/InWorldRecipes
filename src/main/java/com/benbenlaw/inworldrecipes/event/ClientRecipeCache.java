@@ -1,6 +1,6 @@
 package com.benbenlaw.inworldrecipes.event;
 
-import com.benbenlaw.inworldrecipes.recipes.WorldRecipe;
+import com.benbenlaw.inworldrecipes.recipe.WorldRecipe;
 import net.minecraft.resources.Identifier;
 
 import java.util.Collection;

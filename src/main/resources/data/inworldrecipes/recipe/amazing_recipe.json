@@ -2,26 +2,51 @@
   "type": "inworldrecipes:world_recipe",
   "triggers": [
     {
-      "click_type": "left",
-      "target_block": { "Name": "minecraft:grass_block" }
+      "type": "inworldrecipes:click_type",
+      "click_type": "left_click"
+    },
+    {
+      "type": "inworldrecipes:block_target",
+      "target_block": {
+        "Name": "minecraft:grass_block"
+      }
     }
   ],
   "conditions": [
     {
-      "held_item": {
-        "ingredient": "minecraft:diamond_sword"
-      },
-      "ignore_block_state": true
+      "type": "inworldrecipes:held_item",
+      "ingredient": {
+        "ingredient": "minecraft:stick",
+        "count": 1
+      }
+    },
+    {
+      "type": "inworldrecipes:entity",
+      "requirements": [
+        {
+          "type": "minecraft:cow",
+          "nbt": {
+            "variant": "minecraft:cold"
+          },
+          "damage": 2.0
+        },
+        {
+          "type": "minecraft:pig",
+          "damage": 10.0
+        }
+      ]
     }
   ],
   "results": [
     {
-      "damage_held_item": true,
-      "consume_held_item": false,
-      "pop_items": false,
+      "type": "inworldrecipes:block_state",
       "block_state": {
         "Name": "minecraft:dirt"
-      },
+      }
+    },
+    {
+      "type": "inworldrecipes:chance_results",
+      "add_to_inventory": true,
       "results": [
         {
           "item": {
@@ -35,14 +60,15 @@
             "id": "minecraft:emerald",
             "count": 7
           },
-          "chance": 1
+          "chance": 1.0
         }
       ]
     }
   ],
   "options": [
     {
-      "show_in_jei": false
+      "show_in_jei": true,
+      "only_visual_recipe": false
     }
   ]
 }

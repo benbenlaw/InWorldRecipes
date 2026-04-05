@@ -2,7 +2,10 @@ package com.benbenlaw.inworldrecipes;
 
 import com.benbenlaw.inworldrecipes.config.InWorldConfig;
 import com.benbenlaw.inworldrecipes.item.InWorldRecipesItems;
-import com.benbenlaw.inworldrecipes.recipes.InWorldRecipesRecipes;
+import com.benbenlaw.inworldrecipes.recipe.InWorldRecipesRecipes;
+import com.benbenlaw.inworldrecipes.recipe.world.condition.ConditionTypes;
+import com.benbenlaw.inworldrecipes.recipe.world.result.ResultTypes;
+import com.benbenlaw.inworldrecipes.recipe.world.trigger.TriggerTypes;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
@@ -24,6 +27,11 @@ public class InWorldRecipes {
         InWorldRecipesRecipes.SERIALIZER.register(modEventBus);
         InWorldRecipesRecipes.TYPES.register(modEventBus);
         InWorldRecipesItems.ITEMS.register(modEventBus);
+
+        ConditionTypes.CONDITION_TYPES.register(modEventBus);
+        ResultTypes.RESULT_TYPES.register(modEventBus);
+        TriggerTypes.TRIGGER_TYPES.register(modEventBus);
+
     }
 
     public static Identifier identifier(String path) {

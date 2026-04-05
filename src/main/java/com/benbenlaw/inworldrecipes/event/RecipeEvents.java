@@ -1,8 +1,8 @@
 package com.benbenlaw.inworldrecipes.event;
 
 import com.benbenlaw.inworldrecipes.InWorldRecipes;
-import com.benbenlaw.inworldrecipes.recipes.WorldRecipe;
-import com.benbenlaw.inworldrecipes.recipes.InWorldRecipesRecipes;
+import com.benbenlaw.inworldrecipes.recipe.WorldRecipe;
+import com.benbenlaw.inworldrecipes.recipe.InWorldRecipesRecipes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeMap;

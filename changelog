@@ -3,6 +3,9 @@ Changelog In World Recipes
 //In World Recipes for 26.1
 
 ANVIL TRIGGER
+# 2.2.0
+- Reworked everything
+- Updated to Minecraft 26.1
 
 # 2.1.0
 - Added Weather Condition, can be "clear", "rain" or "thunder", "snow"
