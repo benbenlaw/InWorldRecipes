@@ -13,6 +13,10 @@
         "ingredient": "minecraft:coal",
         "count": 64
       }
+    },
+    {
+      "type": "inworldrecipes:weather",
+      "weather": "rain"
     }
   ],
   "results": [
@@ -30,6 +34,10 @@
       "type": "inworldrecipes:message",
       "message": "Chat is amazing!",
       "action_bar": true
+    },
+    {
+      "type": "inworldrecipes:consume_held_item",
+      "count": 64
     }
   ]
 }
