@@ -52,4 +52,17 @@ public record BlockTargetTrigger(BlockTarget targetBlock) implements IRecipeTrig
 
         return tooltip;
     }
+
+    @Override
+    public ItemStack getJeiIcon() {
+        if (this.targetBlock instanceof BlockTarget.Single single) {
+            return new ItemStack(single.blockState().getBlock());
+        } else if (this.targetBlock instanceof BlockTarget.Tag tag) {
+            var blocks = BuiltInRegistries.BLOCK.getOrThrow(tag.tag()).stream().toList();
+            if (!blocks.isEmpty()) {
+                return new ItemStack(blocks.getFirst().value().asItem());
+            }
+        }
+        return ItemStack.EMPTY;
+    }
 }
