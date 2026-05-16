@@ -9,28 +9,33 @@ public sealed interface BlockTarget {
     boolean matches(BlockState state, boolean ignoreBlockState);
 
     record Single(BlockState blockState) implements BlockTarget {
+
         @Override
         public boolean matches(BlockState state, boolean ignoreBlockState) {
-            if (state.getBlock() != blockState.getBlock()) return false;
+
+            if (state.getBlock() != blockState.getBlock()) {
+                return false;
+            }
 
             if (ignoreBlockState) {
                 return true;
-            } else {
-                // Compare only the non-default properties
-                BlockState defaultState = blockState.getBlock().defaultBlockState();
-                for (Property<?> property : blockState.getProperties()) {
-                    Comparable<?> recipeValue = blockState.getValue(property);
-                    Comparable<?> defaultValue = defaultState.getValue(property);
-                    Comparable<?> levelValue = state.getValue(property);
-
-                    if (!recipeValue.equals(defaultValue)) {
-                        if (!recipeValue.equals(levelValue)) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
             }
+
+            for (Property<?> property : blockState.getProperties()) {
+
+                if (!state.hasProperty(property)) {
+                    return false;
+                }
+
+                Comparable<?> expected = blockState.getValue(property);
+                Comparable<?> actual = state.getValue(property);
+
+                if (!expected.equals(actual)) {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 

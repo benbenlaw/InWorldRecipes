@@ -10,6 +10,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.Map;
+
 public class BlockTargetCodec {
 
     public static final Codec<BlockTarget> CODEC = Codec.either(
@@ -23,14 +25,21 @@ public class BlockTargetCodec {
                         throw new IllegalStateException("Unknown BlockTarget: " + target);
                     });
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, BlockTarget> STREAM_CODEC = ByteBufCodecs.either(
-            ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY),
-            TagKey.streamCodec(Registries.BLOCK)
-    ).map(
-            either -> either.map(BlockTarget.Single::new, tag -> (BlockTarget) new BlockTarget.Tag(tag)),
-            target -> {
-                if (target instanceof BlockTarget.Single(BlockState blockState)) return Either.left(blockState);
-                if (target instanceof BlockTarget.Tag(TagKey<Block> tag)) return Either.right(tag);
-                throw new IllegalStateException("Unknown BlockTarget: " + target);
-            }).cast();
+    public static final StreamCodec<RegistryFriendlyByteBuf, BlockTarget> STREAM_CODEC =
+            ByteBufCodecs.either(
+                    ByteBufCodecs.registry(Registries.BLOCK),
+                    TagKey.streamCodec(Registries.BLOCK)
+            ).map(
+                    either -> either.map(
+                            block -> new BlockTarget.Single(block.defaultBlockState()),
+                            BlockTarget.Tag::new
+                    ),
+                    target -> {
+                        if (target instanceof BlockTarget.Single single)
+                            return Either.left(single.blockState().getBlock());
+                        if (target instanceof BlockTarget.Tag tag)
+                            return Either.right(tag.tag());
+                        throw new IllegalStateException();
+                    }
+            );
 }

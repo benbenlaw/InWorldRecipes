@@ -77,22 +77,19 @@ public class WorldRecipeEvent {
     }
 
     private static boolean execute(WorldRecipeContext ctx, WorldRecipe recipe) {
-        // Trigger Check (At least one trigger must match the current context)
-        boolean triggerMatched = false;
+
         for (IRecipeTrigger trigger : recipe.triggers()) {
-            if (trigger.matches(ctx)) {
-                triggerMatched = true;
-                break;
+            if (!trigger.matches(ctx)) {
+                return false;
             }
         }
-        if (!triggerMatched) return false;
 
-        // Conditions Check (All conditions must be met)
         for (IRecipeCondition condition : recipe.conditions()) {
-            if (!condition.matches(ctx)) return false;
+            if (!condition.matches(ctx)) {
+                return false;
+            }
         }
 
-        // Apply Results
         for (IRecipeResult result : recipe.results()) {
             result.apply(ctx, recipe.conditions());
         }
