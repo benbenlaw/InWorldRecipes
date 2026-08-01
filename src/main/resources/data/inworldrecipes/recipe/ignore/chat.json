@@ -10,8 +10,8 @@
     {
       "type": "inworldrecipes:held_item",
       "ingredient": {
-        "ingredient": "minecraft:coal",
-        "count": 64
+        "ingredient": "#minecraft:beds",
+        "count": 1
       }
     },
     {

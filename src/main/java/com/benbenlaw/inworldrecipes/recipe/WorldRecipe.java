@@ -116,19 +116,16 @@ public record WorldRecipe(
     private static WorldRecipe read(RegistryFriendlyByteBuf buffer) {
         Recipe.CommonInfo commonInfo = Recipe.CommonInfo.STREAM_CODEC.decode(buffer);
 
-        // Use the list codec provided by Minecraft/NeoForge
         List<IRecipeTrigger> triggers = TriggerType.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buffer);
         List<IRecipeCondition> conditions = ConditionType.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buffer);
         List<IRecipeResult> results = ResultType.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buffer);
 
-        // Options is now empty or removed
         return new WorldRecipe(commonInfo, triggers, conditions, results, List.of());
     }
 
     private static void write(RegistryFriendlyByteBuf buffer, WorldRecipe recipe) {
         Recipe.CommonInfo.STREAM_CODEC.encode(buffer, recipe.commonInfo());
 
-        // Use the list codec to encode
         TriggerType.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.triggers());
         ConditionType.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.conditions());
         ResultType.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.results());

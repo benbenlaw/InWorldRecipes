@@ -32,8 +32,21 @@
       "block_state": {
         "Name": "minecraft:mud"
       }
+    },
+    {
+      "type": "inworldrecipes:chance_results",
+      "add_to_inventory": true,
+      "results": [
+        {
+          "item": {
+            "id": "minecraft:glass_bottle",
+            "count": 1
+          },
+          "chance": 1.0
+        }
+      ]
     }
-    ],
+  ],
   "options": [
     {
       "show_in_jei": true,

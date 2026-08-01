@@ -4,15 +4,21 @@ import com.benbenlaw.inworldrecipes.recipe.world.condition.ConditionTypes;
 import com.benbenlaw.inworldrecipes.recipe.world.condition.ConditionType;
 import com.benbenlaw.inworldrecipes.recipe.world.WorldRecipeContext;
 import com.benbenlaw.inworldrecipes.recipe.world.condition.IRecipeCondition;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
+
+import java.util.List;
 
 public record HeldItemCondition(SizedIngredient ingredient) implements IRecipeCondition {
 
@@ -45,13 +51,24 @@ public record HeldItemCondition(SizedIngredient ingredient) implements IRecipeCo
         String translationKey = "jei." + id.getNamespace() + "." + id.getPath();
         MutableComponent tooltip = Component.translatable(translationKey).append(": ");
 
-        Component itemName = this.ingredient.ingredient().items()
-                .findFirst()
-                .map(holder -> holder.value().getDefaultInstance().getHoverName())
-                .orElse(Component.literal("Unknown Item"));
+        Component itemDisplay;
+        if (!this.ingredient.ingredient().isCustom()) {
+            Either<TagKey<Item>, List<Holder<Item>>> unwrapped = this.ingredient.ingredient().getValues().unwrap();
+            itemDisplay = unwrapped.left()
+                    .<Component>map(tag -> Component.literal("#" + tag.location()))
+                    .orElseGet(() -> this.ingredient.ingredient().items()
+                            .findFirst()
+                            .map(holder -> holder.value().getDefaultInstance().getHoverName())
+                            .orElse(Component.literal("Unknown Item")));
+        } else {
+            itemDisplay = this.ingredient.ingredient().items()
+                    .findFirst()
+                    .map(holder -> holder.value().getDefaultInstance().getHoverName())
+                    .orElse(Component.literal("Unknown Item"));
+        }
 
         return tooltip.append(Component.literal(this.ingredient.count() + "x "))
-                .append(itemName);
+                .append(itemDisplay);
     }
 
     @Override
@@ -64,6 +81,17 @@ public record HeldItemCondition(SizedIngredient ingredient) implements IRecipeCo
                     return stack;
                 })
                 .orElse(ItemStack.EMPTY);
+    }
+
+    @Override
+    public List<ItemStack> getJeiIcons() {
+        return this.ingredient.ingredient().items()
+                .map(holder -> {
+                    ItemStack stack = new ItemStack(holder.value());
+                    stack.setCount(this.ingredient.count());
+                    return stack;
+                })
+                .toList();
     }
 
 }

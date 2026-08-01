@@ -3,6 +3,7 @@ package com.benbenlaw.inworldrecipes.event;
 import com.benbenlaw.inworldrecipes.InWorldRecipes;
 import com.benbenlaw.inworldrecipes.recipe.WorldRecipe;
 import com.benbenlaw.inworldrecipes.recipe.InWorldRecipesRecipes;
+import com.benbenlaw.inworldrecipes.recipe.Option;
 import com.benbenlaw.inworldrecipes.recipe.world.WorldRecipeContext;
 import com.benbenlaw.inworldrecipes.recipe.util.ClickType;
 import com.benbenlaw.inworldrecipes.recipe.world.condition.IRecipeCondition;
@@ -29,7 +30,6 @@ import java.util.List;
 
 @EventBusSubscriber(modid = InWorldRecipes.MOD_ID)
 public class WorldRecipeEvent {
-
 
     @SubscribeEvent
     public static void rightClickOnBlock(PlayerInteractEvent.RightClickBlock event) {
@@ -60,14 +60,10 @@ public class WorldRecipeEvent {
                 InteractionHand.MAIN_HAND, null, false, null, event.getRawText().trim());
     }
 
-    public static void handle(Level level, @Nullable Player player, BlockPos pos,
-                              @Nullable InteractionHand hand, @Nullable ClickType clickType,
-                              boolean lightningStrike, @Nullable FallingBlockEntity fallingBlock,
-                              @Nullable String chatMessage) {
+    public static void handle(Level level, @Nullable Player player, BlockPos pos, @Nullable InteractionHand hand, @Nullable ClickType clickType,
+                              boolean lightningStrike, @Nullable FallingBlockEntity fallingBlock, @Nullable String chatMessage) {
 
-        WorldRecipeContext context = new WorldRecipeContext(
-                level, player, pos, hand, clickType, lightningStrike, fallingBlock, chatMessage
-        );
+        WorldRecipeContext context = new WorldRecipeContext(level, player, pos, hand, clickType, lightningStrike, fallingBlock, chatMessage);
 
         for (RecipeHolder<WorldRecipe> recipeHolder : getAllWorldRecipes(level)) {
             if (execute(context, recipeHolder.value())) {
@@ -77,17 +73,20 @@ public class WorldRecipeEvent {
     }
 
     private static boolean execute(WorldRecipeContext ctx, WorldRecipe recipe) {
+        boolean visualOnly = recipe.options().stream().anyMatch(Option::onlyVisualRecipe);
+        if (visualOnly) return false;
 
+        boolean triggerMatched = false;
         for (IRecipeTrigger trigger : recipe.triggers()) {
-            if (!trigger.matches(ctx)) {
-                return false;
+            if (trigger.matches(ctx)) {
+                triggerMatched = true;
+                break;
             }
         }
+        if (!triggerMatched) return false;
 
         for (IRecipeCondition condition : recipe.conditions()) {
-            if (!condition.matches(ctx)) {
-                return false;
-            }
+            if (!condition.matches(ctx)) return false;
         }
 
         for (IRecipeResult result : recipe.results()) {

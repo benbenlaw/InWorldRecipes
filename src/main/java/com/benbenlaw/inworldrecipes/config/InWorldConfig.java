@@ -9,7 +9,6 @@ public class InWorldConfig {
 
     public static ModConfigSpec.ConfigValue<Boolean> DISABLE_DRAGON_EGG_TELEPORT;
 
-
     static {
         BUILDER.comment("In-World Recipes Config for In-World Recipes")
                 .push("In-World Recipes Config");
