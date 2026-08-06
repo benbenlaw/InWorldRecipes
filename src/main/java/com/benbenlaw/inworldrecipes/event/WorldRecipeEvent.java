@@ -76,14 +76,11 @@ public class WorldRecipeEvent {
         boolean visualOnly = recipe.options().stream().anyMatch(Option::onlyVisualRecipe);
         if (visualOnly) return false;
 
-        boolean triggerMatched = false;
+        if (recipe.triggers().isEmpty()) return false;
+
         for (IRecipeTrigger trigger : recipe.triggers()) {
-            if (trigger.matches(ctx)) {
-                triggerMatched = true;
-                break;
-            }
+            if (!trigger.matches(ctx)) return false;
         }
-        if (!triggerMatched) return false;
 
         for (IRecipeCondition condition : recipe.conditions()) {
             if (!condition.matches(ctx)) return false;
