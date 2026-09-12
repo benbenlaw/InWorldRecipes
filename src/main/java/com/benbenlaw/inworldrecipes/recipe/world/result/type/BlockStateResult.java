@@ -3,6 +3,7 @@ package com.benbenlaw.inworldrecipes.recipe.world.result.type;
 import com.benbenlaw.inworldrecipes.recipe.world.WorldRecipeContext;
 import com.benbenlaw.inworldrecipes.recipe.world.condition.IRecipeCondition;
 import com.benbenlaw.inworldrecipes.recipe.world.result.IRecipeResult;
+import com.benbenlaw.inworldrecipes.recipe.world.trigger.IRecipeTrigger;
 import com.benbenlaw.inworldrecipes.recipe.world.result.ResultType;
 import com.benbenlaw.inworldrecipes.recipe.world.result.ResultTypes;
 import com.mojang.serialization.MapCodec;
@@ -31,7 +32,7 @@ public record BlockStateResult(BlockState state) implements IRecipeResult {
     );
 
     @Override
-    public void apply(WorldRecipeContext ctx, List<IRecipeCondition> conditions) {
+    public void apply(WorldRecipeContext ctx, List<IRecipeTrigger> triggers, List<IRecipeCondition> conditions) {
         ctx.level().setBlockAndUpdate(ctx.pos(), state);
     }
 

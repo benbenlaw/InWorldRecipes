@@ -4,6 +4,7 @@ import com.benbenlaw.core.recipe.ChanceResult;
 import com.benbenlaw.inworldrecipes.recipe.world.WorldRecipeContext;
 import com.benbenlaw.inworldrecipes.recipe.world.condition.IRecipeCondition;
 import com.benbenlaw.inworldrecipes.recipe.world.result.IRecipeResult;
+import com.benbenlaw.inworldrecipes.recipe.world.trigger.IRecipeTrigger;
 import com.benbenlaw.inworldrecipes.recipe.world.result.ResultType;
 import com.benbenlaw.inworldrecipes.recipe.world.result.ResultTypes;
 import com.mojang.serialization.Codec;
@@ -41,7 +42,7 @@ public record ChanceResultsResult(List<ChanceResult> results, boolean addToInven
     );
 
     @Override
-    public void apply(WorldRecipeContext ctx, List<IRecipeCondition> conditions) {
+    public void apply(WorldRecipeContext ctx, List<IRecipeTrigger> triggers, List<IRecipeCondition> conditions) {
         for (ChanceResult chanceResult : results) {
             ItemStack output = chanceResult.rollOutput(ctx.level().getRandom());
 

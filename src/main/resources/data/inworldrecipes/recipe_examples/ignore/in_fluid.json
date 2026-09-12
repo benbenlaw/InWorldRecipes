@@ -1,0 +1,39 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "type": "inworldrecipes:fluid",
+      "fluid": "minecraft:water",
+      "items": [
+        {
+          "ingredient": "minecraft:sand",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "conditions": [],
+  "results": [
+    {
+      "type": "inworldrecipes:consume_fluid_items"
+    },
+    {
+      "type": "inworldrecipes:chance_results",
+      "add_to_inventory": false,
+      "results": [
+        {
+          "item": {
+            "id": "minecraft:glass",
+            "count": 1
+          },
+          "chance": 1.0
+        }
+      ]
+    }
+  ],
+  "options": [
+    {
+      "show_in_jei": true
+    }
+  ]
+}

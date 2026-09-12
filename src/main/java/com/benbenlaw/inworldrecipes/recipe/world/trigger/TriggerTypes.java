@@ -46,6 +46,12 @@ public class TriggerTypes {
     public static final Supplier<TriggerType<ChatMessageTrigger>> CHAT_MESSAGE =
             register("chat_message", ChatMessageTrigger.CODEC, ChatMessageTrigger.STREAM_CODEC);
 
+    public static final Supplier<TriggerType<FluidTrigger>> FLUID =
+            register("fluid", FluidTrigger.CODEC, FluidTrigger.STREAM_CODEC);
+
+    public static final Supplier<TriggerType<CauldronTrigger>> CAULDRON =
+            register("cauldron", CauldronTrigger.CODEC, CauldronTrigger.STREAM_CODEC);
+
 
     private static <T extends IRecipeTrigger> Supplier<TriggerType<T>> register(String name, MapCodec<T> codec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
         return TRIGGER_TYPES.register(name, () -> new TriggerType<>(codec, streamCodec));

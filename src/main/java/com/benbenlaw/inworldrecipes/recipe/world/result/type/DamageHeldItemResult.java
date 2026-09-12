@@ -5,6 +5,7 @@ import com.benbenlaw.inworldrecipes.recipe.world.condition.IRecipeCondition;
 import com.benbenlaw.inworldrecipes.recipe.world.result.IRecipeResult;
 import com.benbenlaw.inworldrecipes.recipe.world.result.ResultType;
 import com.benbenlaw.inworldrecipes.recipe.world.result.ResultTypes;
+import com.benbenlaw.inworldrecipes.recipe.world.trigger.IRecipeTrigger;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -25,7 +26,7 @@ public record DamageHeldItemResult(int amount) implements IRecipeResult {
             ByteBufCodecs.VAR_INT.map(DamageHeldItemResult::new, DamageHeldItemResult::amount).cast();
 
     @Override
-    public void apply(WorldRecipeContext ctx, List<IRecipeCondition> conditions) {
+    public void apply(WorldRecipeContext ctx, List<IRecipeTrigger> triggers, List<IRecipeCondition> conditions) {
         if (ctx.player() != null && ctx.hand() != null) {
             ItemStack stack = ctx.player().getItemInHand(ctx.hand());
 

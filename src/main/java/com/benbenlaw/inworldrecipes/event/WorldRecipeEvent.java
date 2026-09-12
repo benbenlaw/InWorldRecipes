@@ -4,6 +4,7 @@ import com.benbenlaw.inworldrecipes.InWorldRecipes;
 import com.benbenlaw.inworldrecipes.recipe.WorldRecipe;
 import com.benbenlaw.inworldrecipes.recipe.InWorldRecipesRecipes;
 import com.benbenlaw.inworldrecipes.recipe.Option;
+import com.benbenlaw.inworldrecipes.recipe.util.CauldronFluids;
 import com.benbenlaw.inworldrecipes.recipe.world.WorldRecipeContext;
 import com.benbenlaw.inworldrecipes.recipe.util.ClickType;
 import com.benbenlaw.inworldrecipes.recipe.world.condition.IRecipeCondition;
@@ -14,16 +15,19 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.ServerChatEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -60,6 +64,23 @@ public class WorldRecipeEvent {
                 InteractionHand.MAIN_HAND, null, false, null, event.getRawText().trim());
     }
 
+    @SubscribeEvent
+    public static void onItemEntityTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof ItemEntity itemEntity)) return;
+        if (itemEntity.level().isClientSide()) return;
+        if (!itemEntity.isAlive()) return;
+        if (itemEntity.tickCount % 10 != 0) return;
+
+        BlockPos pos = itemEntity.blockPosition();
+        BlockState state = itemEntity.level().getBlockState(pos);
+
+        boolean inCauldron = CauldronFluids.getFluid(state.getBlock()) != null;
+        boolean inFluid = !state.getFluidState().isEmpty();
+        if (!inCauldron && !inFluid) return;
+
+        handle(itemEntity.level(), null, pos, null, null, false, null, null);
+    }
+
     public static void handle(Level level, @Nullable Player player, BlockPos pos, @Nullable InteractionHand hand, @Nullable ClickType clickType,
                               boolean lightningStrike, @Nullable FallingBlockEntity fallingBlock, @Nullable String chatMessage) {
 
@@ -87,7 +108,7 @@ public class WorldRecipeEvent {
         }
 
         for (IRecipeResult result : recipe.results()) {
-            result.apply(ctx, recipe.conditions());
+            result.apply(ctx, recipe.triggers(), recipe.conditions());
         }
 
         return true;

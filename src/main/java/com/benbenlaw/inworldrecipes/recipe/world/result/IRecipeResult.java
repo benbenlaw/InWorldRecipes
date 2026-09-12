@@ -3,6 +3,7 @@ package com.benbenlaw.inworldrecipes.recipe.world.result;
 import com.benbenlaw.inworldrecipes.recipe.world.WorldRecipeContext;
 import com.benbenlaw.inworldrecipes.recipe.world.condition.ConditionTypes;
 import com.benbenlaw.inworldrecipes.recipe.world.condition.IRecipeCondition;
+import com.benbenlaw.inworldrecipes.recipe.world.trigger.IRecipeTrigger;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -10,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public interface IRecipeResult {
-    void apply(WorldRecipeContext ctx, List<IRecipeCondition> conditions);
+    void apply(WorldRecipeContext ctx, List<IRecipeTrigger> triggers, List<IRecipeCondition> conditions);
     ResultType<?> getType();
 
     default ItemStack getJeiIcon() {

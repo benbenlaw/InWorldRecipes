@@ -10,6 +10,10 @@
   "jei.inworldrecipes.consume_held_item": "Consumes held items",
   "jei.inworldrecipes.consume_dropped_items": "Consumes required dropped items",
   "jei.inworldrecipes.consume_inventory_items": "Consumes required items from inventory",
+  "jei.inworldrecipes.consume_cauldron_fluid": "Consumes fluid level from the cauldron",
+  "jei.inworldrecipes.consume_cauldron_items": "Consumes required items from the cauldron",
+  "jei.inworldrecipes.consume_fluid_items": "Consumes required items from the fluid",
+  "jei.inworldrecipes.consume_fluid": "Consumes the fluid",
   "jei.inworldrecipes.damage_held_item": "Damages held item",
   "jei.inworldrecipes.message": "Message",
 
@@ -17,6 +21,8 @@
   "jei.inworldrecipes.chat_message": "Send Chat Message",
   "jei.inworldrecipes.click_type": "Click Type",
   "jei.inworldrecipes.block_target": "Target Block",
+  "jei.inworldrecipes.fluid": "In Fluid",
+  "jei.inworldrecipes.cauldron": "Cauldron",
   "jei.inworldrecipes.standing_on": "Must stand on this block",
   "jei.inworldrecipes.lightning": "Requires lightning to strike",
 

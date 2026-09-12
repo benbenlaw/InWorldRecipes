@@ -6,6 +6,7 @@ import com.benbenlaw.inworldrecipes.recipe.world.condition.type.InventoryItemsCo
 import com.benbenlaw.inworldrecipes.recipe.world.result.IRecipeResult;
 import com.benbenlaw.inworldrecipes.recipe.world.result.ResultType;
 import com.benbenlaw.inworldrecipes.recipe.world.result.ResultTypes;
+import com.benbenlaw.inworldrecipes.recipe.world.trigger.IRecipeTrigger;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -21,7 +22,7 @@ public record ConsumeInventoryItemsResult() implements IRecipeResult {
     public static final StreamCodec<RegistryFriendlyByteBuf, ConsumeInventoryItemsResult> STREAM_CODEC = StreamCodec.unit(new ConsumeInventoryItemsResult());
 
     @Override
-    public void apply(WorldRecipeContext ctx, List<IRecipeCondition> conditions) {
+    public void apply(WorldRecipeContext ctx, List<IRecipeTrigger> triggers, List<IRecipeCondition> conditions) {
         if (ctx.player() == null) return;
         for (IRecipeCondition condition : conditions) {
             if (condition instanceof InventoryItemsCondition(List<SizedIngredient> items)) {

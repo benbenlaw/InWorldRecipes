@@ -2,11 +2,11 @@ package com.benbenlaw.inworldrecipes.recipe.world.result.type;
 
 import com.benbenlaw.inworldrecipes.recipe.world.WorldRecipeContext;
 import com.benbenlaw.inworldrecipes.recipe.world.condition.IRecipeCondition;
-import com.benbenlaw.inworldrecipes.recipe.world.condition.type.DroppedItemsCondition;
 import com.benbenlaw.inworldrecipes.recipe.world.result.IRecipeResult;
 import com.benbenlaw.inworldrecipes.recipe.world.result.ResultType;
 import com.benbenlaw.inworldrecipes.recipe.world.result.ResultTypes;
 import com.benbenlaw.inworldrecipes.recipe.world.trigger.IRecipeTrigger;
+import com.benbenlaw.inworldrecipes.recipe.world.trigger.type.FluidTrigger;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,26 +17,26 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 import java.util.List;
 
-
-public record ConsumeDroppedItemsResult() implements IRecipeResult {
-    public static final MapCodec<ConsumeDroppedItemsResult> CODEC = MapCodec.unit(new ConsumeDroppedItemsResult());
-    public static final StreamCodec<RegistryFriendlyByteBuf, ConsumeDroppedItemsResult> STREAM_CODEC = StreamCodec.unit(new ConsumeDroppedItemsResult());
+/**
+ * Consumes the item(s) required by the recipe's {@link FluidTrigger} from the fluid itself.
+ */
+public record ConsumeFluidItemsResult() implements IRecipeResult {
+    public static final MapCodec<ConsumeFluidItemsResult> CODEC = MapCodec.unit(new ConsumeFluidItemsResult());
+    public static final StreamCodec<RegistryFriendlyByteBuf, ConsumeFluidItemsResult> STREAM_CODEC = StreamCodec.unit(new ConsumeFluidItemsResult());
 
     @Override
     public void apply(WorldRecipeContext ctx, List<IRecipeTrigger> triggers, List<IRecipeCondition> conditions) {
-        for (IRecipeCondition condition : conditions) {
-            if (condition instanceof DroppedItemsCondition(List<SizedIngredient> items)) {
-
+        for (IRecipeTrigger trigger : triggers) {
+            if (trigger instanceof FluidTrigger(var fluid, List<SizedIngredient> items)) {
                 for (SizedIngredient sizedIngredient : items) {
-                    consumeFromWorld(ctx, sizedIngredient);
+                    consumeFromFluid(ctx, sizedIngredient);
                 }
             }
         }
     }
 
-    private void consumeFromWorld(WorldRecipeContext ctx, SizedIngredient requirement) {
-        AABB area = new AABB(ctx.pos()).inflate(5);
-        List<ItemEntity> entities = ctx.level().getEntitiesOfClass(ItemEntity.class, area);
+    private void consumeFromFluid(WorldRecipeContext ctx, SizedIngredient requirement) {
+        List<ItemEntity> entities = ctx.level().getEntitiesOfClass(ItemEntity.class, new AABB(ctx.pos()));
 
         int remaining = requirement.count();
 
@@ -61,6 +61,6 @@ public record ConsumeDroppedItemsResult() implements IRecipeResult {
 
     @Override
     public ResultType<?> getType() {
-        return ResultTypes.CONSUME_DROPPED_ITEMS.get();
+        return ResultTypes.CONSUME_FLUID_ITEMS.get();
     }
 }

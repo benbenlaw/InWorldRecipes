@@ -49,6 +49,18 @@ public class ResultTypes {
     public static final Supplier<ResultType<MessageResult>> MESSAGE =
             register("message", MessageResult.CODEC, MessageResult.STREAM_CODEC);
 
+    public static final Supplier<ResultType<ConsumeCauldronFluidResult>> CONSUME_CAULDRON_FLUID =
+            register("consume_cauldron_fluid", ConsumeCauldronFluidResult.CODEC, ConsumeCauldronFluidResult.STREAM_CODEC);
+
+    public static final Supplier<ResultType<ConsumeCauldronItemsResult>> CONSUME_CAULDRON_ITEMS =
+            register("consume_cauldron_items", ConsumeCauldronItemsResult.CODEC, ConsumeCauldronItemsResult.STREAM_CODEC);
+
+    public static final Supplier<ResultType<ConsumeFluidItemsResult>> CONSUME_FLUID_ITEMS =
+            register("consume_fluid_items", ConsumeFluidItemsResult.CODEC, ConsumeFluidItemsResult.STREAM_CODEC);
+
+    public static final Supplier<ResultType<ConsumeFluidResult>> CONSUME_FLUID =
+            register("consume_fluid", ConsumeFluidResult.CODEC, ConsumeFluidResult.STREAM_CODEC);
+
 
 
 
