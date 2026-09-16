@@ -1,6 +1,6 @@
 package com.benbenlaw.inworldrecipes.recipe.world.result.type;
 
-import com.benbenlaw.inworldrecipes.recipe.util.CauldronFluids;
+import com.benbenlaw.inworldrecipes.recipe.util.CauldronContents;
 import com.benbenlaw.inworldrecipes.recipe.world.WorldRecipeContext;
 import com.benbenlaw.inworldrecipes.recipe.world.condition.IRecipeCondition;
 import com.benbenlaw.inworldrecipes.recipe.world.result.IRecipeResult;
@@ -27,8 +27,8 @@ public record ConsumeCauldronFluidResult() implements IRecipeResult {
         for (IRecipeTrigger trigger : triggers) {
             if (trigger instanceof CauldronTrigger cauldronTrigger) {
                 BlockState state = ctx.level().getBlockState(ctx.pos());
-                if (CauldronFluids.isCauldronWithFluid(state)) {
-                    CauldronFluids.consume(state, ctx.level(), ctx.pos(), cauldronTrigger.consumeLevel());
+                if (CauldronContents.isCauldronWithContent(state)) {
+                    CauldronContents.consume(state, ctx.level(), ctx.pos(), cauldronTrigger.consumeLevel());
                 }
             }
         }

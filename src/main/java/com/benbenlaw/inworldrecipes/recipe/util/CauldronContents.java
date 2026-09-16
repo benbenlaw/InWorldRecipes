@@ -1,27 +1,28 @@
 package com.benbenlaw.inworldrecipes.recipe.util;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
 
-public final class CauldronFluids {
+public final class CauldronContents {
 
-    private CauldronFluids() {}
+    private CauldronContents() {}
 
     @Nullable
-    public static Fluid getFluid(Block block) {
-        if (block == Blocks.WATER_CAULDRON) return Fluids.WATER;
-        if (block == Blocks.LAVA_CAULDRON) return Fluids.LAVA;
+    public static CauldronContent getContent(Block block) {
+        if (block == Blocks.WATER_CAULDRON) return CauldronContent.WATER;
+        if (block == Blocks.LAVA_CAULDRON) return CauldronContent.LAVA;
+        if (block == Blocks.POWDER_SNOW_CAULDRON) return CauldronContent.POWDER_SNOW;
         return null;
     }
 
-    public static boolean isCauldronWithFluid(BlockState state) {
-        return getFluid(state.getBlock()) != null;
+    public static boolean isCauldronWithContent(BlockState state) {
+        return getContent(state.getBlock()) != null;
     }
 
     public static int getLevel(BlockState state) {
@@ -31,10 +32,10 @@ public final class CauldronFluids {
     }
 
     /**
-     * Lowers the cauldron's fluid level by {@code amount}, emptying it back to a plain cauldron
+     * Lowers the cauldron's level by {@code amount}, emptying it back to a plain cauldron
      * once the level reaches zero. Lava cauldrons have no partial levels, so any consumption empties them.
      */
-    public static void consume(BlockState state, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, int amount) {
+    public static void consume(BlockState state, Level level, BlockPos pos, int amount) {
         if (!state.hasProperty(LayeredCauldronBlock.LEVEL)) {
             level.setBlockAndUpdate(pos, Blocks.CAULDRON.defaultBlockState());
             return;

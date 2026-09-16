@@ -27,7 +27,7 @@ public record ConsumeCauldronItemsResult() implements IRecipeResult {
     @Override
     public void apply(WorldRecipeContext ctx, List<IRecipeTrigger> triggers, List<IRecipeCondition> conditions) {
         for (IRecipeTrigger trigger : triggers) {
-            if (trigger instanceof CauldronTrigger(var fluid, List<SizedIngredient> items, var consumeLevel)) {
+            if (trigger instanceof CauldronTrigger(var content, List<SizedIngredient> items, var consumeLevel)) {
                 for (SizedIngredient sizedIngredient : items) {
                     consumeFromCauldron(ctx, sizedIngredient);
                 }

@@ -4,7 +4,7 @@ import com.benbenlaw.inworldrecipes.InWorldRecipes;
 import com.benbenlaw.inworldrecipes.recipe.WorldRecipe;
 import com.benbenlaw.inworldrecipes.recipe.InWorldRecipesRecipes;
 import com.benbenlaw.inworldrecipes.recipe.Option;
-import com.benbenlaw.inworldrecipes.recipe.util.CauldronFluids;
+import com.benbenlaw.inworldrecipes.recipe.util.CauldronContents;
 import com.benbenlaw.inworldrecipes.recipe.world.WorldRecipeContext;
 import com.benbenlaw.inworldrecipes.recipe.util.ClickType;
 import com.benbenlaw.inworldrecipes.recipe.world.condition.IRecipeCondition;
@@ -74,7 +74,7 @@ public class WorldRecipeEvent {
         BlockPos pos = itemEntity.blockPosition();
         BlockState state = itemEntity.level().getBlockState(pos);
 
-        boolean inCauldron = CauldronFluids.getFluid(state.getBlock()) != null;
+        boolean inCauldron = CauldronContents.getContent(state.getBlock()) != null;
         boolean inFluid = !state.getFluidState().isEmpty();
         if (!inCauldron && !inFluid) return;
 

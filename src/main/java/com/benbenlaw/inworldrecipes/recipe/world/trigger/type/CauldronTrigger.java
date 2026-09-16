@@ -1,8 +1,8 @@
 package com.benbenlaw.inworldrecipes.recipe.world.trigger.type;
 
-import com.benbenlaw.inworldrecipes.recipe.util.CauldronFluids;
-import com.benbenlaw.inworldrecipes.recipe.util.FluidTarget;
-import com.benbenlaw.inworldrecipes.recipe.util.FluidTargetCodec;
+import com.benbenlaw.inworldrecipes.recipe.util.CauldronContent;
+import com.benbenlaw.inworldrecipes.recipe.util.CauldronContentCodec;
+import com.benbenlaw.inworldrecipes.recipe.util.CauldronContents;
 import com.benbenlaw.inworldrecipes.recipe.world.WorldRecipeContext;
 import com.benbenlaw.inworldrecipes.recipe.world.trigger.IRecipeTrigger;
 import com.benbenlaw.inworldrecipes.recipe.world.trigger.TriggerType;
@@ -10,7 +10,6 @@ import com.benbenlaw.inworldrecipes.recipe.world.trigger.TriggerTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -23,17 +22,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public record CauldronTrigger(FluidTarget fluid, List<SizedIngredient> items, int consumeLevel) implements IRecipeTrigger {
+public record CauldronTrigger(CauldronContent content, List<SizedIngredient> items, int consumeLevel) implements IRecipeTrigger {
 
     public static final MapCodec<CauldronTrigger> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-            FluidTargetCodec.CODEC.fieldOf("fluid").forGetter(CauldronTrigger::fluid),
+            CauldronContentCodec.CODEC.fieldOf("fluid").forGetter(CauldronTrigger::content),
             SizedIngredient.NESTED_CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(CauldronTrigger::items),
             Codec.intRange(LayeredCauldronBlock.MIN_FILL_LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL)
                     .optionalFieldOf("consume_level", LayeredCauldronBlock.MIN_FILL_LEVEL)
@@ -41,7 +39,7 @@ public record CauldronTrigger(FluidTarget fluid, List<SizedIngredient> items, in
     ).apply(inst, CauldronTrigger::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, CauldronTrigger> STREAM_CODEC = StreamCodec.composite(
-            FluidTargetCodec.STREAM_CODEC, CauldronTrigger::fluid,
+            CauldronContentCodec.STREAM_CODEC, CauldronTrigger::content,
             SizedIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()), CauldronTrigger::items,
             ByteBufCodecs.VAR_INT, CauldronTrigger::consumeLevel,
             CauldronTrigger::new
@@ -51,10 +49,10 @@ public record CauldronTrigger(FluidTarget fluid, List<SizedIngredient> items, in
     public boolean matches(WorldRecipeContext ctx) {
         BlockState state = ctx.level().getBlockState(ctx.pos());
 
-        Fluid cauldronFluid = CauldronFluids.getFluid(state.getBlock());
-        if (cauldronFluid == null || !this.fluid.matches(cauldronFluid)) return false;
+        CauldronContent actual = CauldronContents.getContent(state.getBlock());
+        if (actual != this.content) return false;
 
-        if (CauldronFluids.getLevel(state) < this.consumeLevel) return false;
+        if (CauldronContents.getLevel(state) < this.consumeLevel) return false;
 
         if (this.items.isEmpty()) return true;
 
@@ -77,13 +75,16 @@ public record CauldronTrigger(FluidTarget fluid, List<SizedIngredient> items, in
 
     @Override
     public ItemStack getJeiIcon() {
-        if (this.fluid instanceof FluidTarget.Single single) {
-            Item bucket = single.fluid().getBucket();
-            if (bucket != Items.AIR) {
-                return new ItemStack(bucket);
-            }
-        }
-        return ItemStack.EMPTY;
+        Item bucket = bucketFor(this.content);
+        return bucket == Items.AIR ? ItemStack.EMPTY : new ItemStack(bucket);
+    }
+
+    private static Item bucketFor(CauldronContent content) {
+        return switch (content) {
+            case WATER -> Items.WATER_BUCKET;
+            case LAVA -> Items.LAVA_BUCKET;
+            case POWDER_SNOW -> Items.POWDER_SNOW_BUCKET;
+        };
     }
 
     @Override
@@ -110,13 +111,7 @@ public record CauldronTrigger(FluidTarget fluid, List<SizedIngredient> items, in
 
         MutableComponent tooltip = Component.translatable("jei." + id.getNamespace() + "." + id.getPath()).append(": ");
 
-        if (this.fluid instanceof FluidTarget.Single single) {
-            Identifier fluidId = BuiltInRegistries.FLUID.getKey(single.fluid());
-            tooltip.append(Component.literal(fluidId == null ? "unknown" : fluidId.toString()));
-        } else if (this.fluid instanceof FluidTarget.Tag tag) {
-            tooltip.append(Component.literal("#" + tag.tag().location()));
-        }
-
+        tooltip.append(Component.literal(this.content.name().toLowerCase()));
         tooltip.append(Component.literal(" (" + this.consumeLevel + "/" + LayeredCauldronBlock.MAX_FILL_LEVEL + ")"));
 
         return tooltip;
