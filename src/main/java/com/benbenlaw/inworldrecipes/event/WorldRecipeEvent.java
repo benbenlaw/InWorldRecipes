@@ -30,7 +30,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.Collection;
 
 @EventBusSubscriber(modid = InWorldRecipes.MOD_ID)
 public class WorldRecipeEvent {
@@ -114,14 +114,10 @@ public class WorldRecipeEvent {
         return true;
     }
 
-    private static List<RecipeHolder<WorldRecipe>> getAllWorldRecipes(Level level) {
+    private static Collection<RecipeHolder<WorldRecipe>> getAllWorldRecipes(Level level) {
         return level.getServer()
                 .getRecipeManager()
                 .recipeMap()
-                .values()
-                .stream()
-                .filter(r -> r.value().getType() == InWorldRecipesRecipes.WORLD_RECIPE_TYPE.get())
-                .map(r -> (RecipeHolder<WorldRecipe>) r)
-                .toList();
+                .byType(InWorldRecipesRecipes.WORLD_RECIPE_TYPE.get());
     }
 }
