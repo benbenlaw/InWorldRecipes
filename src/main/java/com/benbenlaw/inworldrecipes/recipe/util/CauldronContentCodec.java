@@ -15,12 +15,14 @@ public class CauldronContentCodec {
                 case "minecraft:water", "water" -> CauldronContent.WATER;
                 case "minecraft:lava", "lava" -> CauldronContent.LAVA;
                 case "minecraft:powder_snow", "powder_snow" -> CauldronContent.POWDER_SNOW;
+                case "auroral:liquid_aura", "liquid_aura" -> CauldronContent.LIQUID_AURA;
                 default -> throw new IllegalArgumentException("Unknown CauldronContent: " + s);
             },
             content -> switch (content) {
                 case WATER -> "minecraft:water";
                 case LAVA -> "minecraft:lava";
                 case POWDER_SNOW -> "minecraft:powder_snow";
+                case LIQUID_AURA -> "auroral:liquid_aura";
             }
     );
 

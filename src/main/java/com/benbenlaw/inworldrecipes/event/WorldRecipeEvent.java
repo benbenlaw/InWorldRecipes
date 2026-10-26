@@ -74,7 +74,7 @@ public class WorldRecipeEvent {
         BlockPos pos = itemEntity.blockPosition();
         BlockState state = itemEntity.level().getBlockState(pos);
 
-        boolean inCauldron = CauldronContents.getContent(state.getBlock()) != null;
+        boolean inCauldron = CauldronContents.getContent(state) != null;
         boolean inFluid = !state.getFluidState().isEmpty();
         if (!inCauldron && !inFluid) return;
 

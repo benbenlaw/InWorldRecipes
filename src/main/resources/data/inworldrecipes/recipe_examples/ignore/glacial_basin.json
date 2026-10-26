@@ -1,0 +1,43 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "type": "inworldrecipes:cauldron",
+      "fluid": "auroral:liquid_aura",
+      "consume_level": 1,
+      "items": [
+        {
+          "ingredient": "minecraft:amethyst_shard",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "conditions": [],
+  "results": [
+    {
+      "type": "inworldrecipes:consume_cauldron_items"
+    },
+    {
+      "type": "inworldrecipes:consume_cauldron_fluid"
+    },
+    {
+      "type": "inworldrecipes:chance_results",
+      "add_to_inventory": false,
+      "results": [
+        {
+          "item": {
+            "id": "minecraft:glow_berries",
+            "count": 2
+          },
+          "chance": 1.0
+        }
+      ]
+    }
+  ],
+  "options": [
+    {
+      "show_in_jei": true
+    }
+  ]
+}

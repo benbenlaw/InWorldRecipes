@@ -49,7 +49,7 @@ public record CauldronTrigger(CauldronContent content, List<SizedIngredient> ite
     public boolean matches(WorldRecipeContext ctx) {
         BlockState state = ctx.level().getBlockState(ctx.pos());
 
-        CauldronContent actual = CauldronContents.getContent(state.getBlock());
+        CauldronContent actual = CauldronContents.getContent(state);
         if (actual != this.content) return false;
 
         if (CauldronContents.getLevel(state) < this.consumeLevel) return false;
@@ -75,16 +75,7 @@ public record CauldronTrigger(CauldronContent content, List<SizedIngredient> ite
 
     @Override
     public ItemStack getJeiIcon() {
-        Item bucket = bucketFor(this.content);
-        return bucket == Items.AIR ? ItemStack.EMPTY : new ItemStack(bucket);
-    }
-
-    private static Item bucketFor(CauldronContent content) {
-        return switch (content) {
-            case WATER -> Items.WATER_BUCKET;
-            case LAVA -> Items.LAVA_BUCKET;
-            case POWDER_SNOW -> Items.POWDER_SNOW_BUCKET;
-        };
+        return CauldronContents.getIcon(this.content);
     }
 
     @Override
