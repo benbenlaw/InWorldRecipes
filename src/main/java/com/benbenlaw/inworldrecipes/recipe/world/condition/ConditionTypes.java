@@ -43,6 +43,9 @@ public class ConditionTypes {
     public static final Supplier<ConditionType<EntityCondition>> ENTITY =
             register("entity", EntityCondition.CODEC, EntityCondition.STREAM_CODEC);
 
+    public static final Supplier<ConditionType<DimensionCondition>> DIMENSION =
+            register("dimension", DimensionCondition.CODEC, DimensionCondition.STREAM_CODEC);
+
 
 
     private static <T extends IRecipeCondition> Supplier<ConditionType<T>> register(String name, MapCodec<T> codec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {

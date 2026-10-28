@@ -1,0 +1,28 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "type": "inworldrecipes:block_placed",
+      "block": "minecraft:oak_planks"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "inworldrecipes:dimension",
+      "dimension": "minecraft:the_nether"
+    }
+  ],
+  "results": [
+    {
+      "type": "inworldrecipes:block_state",
+      "block_state": {
+        "Name": "minecraft:crimson_planks"
+      }
+    }
+  ],
+  "options": [
+    {
+      "show_in_jei": true
+    }
+  ]
+}

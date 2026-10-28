@@ -1,0 +1,29 @@
+{
+  "type": "inworldrecipes:world_recipe",
+  "triggers": [
+    {
+      "type": "inworldrecipes:block_placed",
+      "block": "minecraft:diamond_block"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "inworldrecipes:dimension",
+      "dimension": "minecraft:the_nether"
+    }
+  ],
+  "results": [
+    {
+      "type": "inworldrecipes:dimension_block_state",
+      "dimension": "minecraft:overworld",
+      "block_state": {
+        "Name": "minecraft:emerald_block"
+      }
+    }
+  ],
+  "options": [
+    {
+      "show_in_jei": true
+    }
+  ]
+}

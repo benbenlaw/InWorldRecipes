@@ -18,7 +18,8 @@ public record WorldRecipeContext(
         @Nullable ClickType clickType,
         boolean lightningStrike,
         @Nullable FallingBlockEntity fallingBlockEntity,
-        @Nullable String chatMessage
+        @Nullable String chatMessage,
+        boolean blockPlaced
 ) {
 
     public boolean isBlockLanding() {

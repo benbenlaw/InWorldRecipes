@@ -46,6 +46,9 @@ public class TriggerTypes {
     public static final Supplier<TriggerType<ChatMessageTrigger>> CHAT_MESSAGE =
             register("chat_message", ChatMessageTrigger.CODEC, ChatMessageTrigger.STREAM_CODEC);
 
+    public static final Supplier<TriggerType<BlockPlacedTrigger>> BLOCK_PLACED =
+            register("block_placed", BlockPlacedTrigger.CODEC, BlockPlacedTrigger.STREAM_CODEC);
+
     public static final Supplier<TriggerType<FluidTrigger>> FLUID =
             register("fluid", FluidTrigger.CODEC, FluidTrigger.STREAM_CODEC);
 

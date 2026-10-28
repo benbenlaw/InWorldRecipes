@@ -7,6 +7,7 @@
 
   "jei.inworldrecipes.block_state": "Placed Block",
   "jei.inworldrecipes.chance_results": "Chance Results",
+  "jei.inworldrecipes.dimension_block_state": "Places block in dimension",
   "jei.inworldrecipes.consume_held_item": "Consumes held items",
   "jei.inworldrecipes.consume_dropped_items": "Consumes required dropped items",
   "jei.inworldrecipes.consume_inventory_items": "Consumes required items from inventory",
@@ -18,6 +19,8 @@
   "jei.inworldrecipes.message": "Message",
 
   "jei.inworldrecipes.block_landed": "Block Landed",
+  "jei.inworldrecipes.block_placed": "Block Placed",
+  "jei.inworldrecipes.dimension": "Dimension",
   "jei.inworldrecipes.chat_message": "Send Chat Message",
   "jei.inworldrecipes.click_type": "Click Type",
   "jei.inworldrecipes.block_target": "Target Block",

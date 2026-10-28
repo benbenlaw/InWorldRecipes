@@ -49,6 +49,9 @@ public class ResultTypes {
     public static final Supplier<ResultType<MessageResult>> MESSAGE =
             register("message", MessageResult.CODEC, MessageResult.STREAM_CODEC);
 
+    public static final Supplier<ResultType<DimensionBlockStateResult>> DIMENSION_BLOCK_STATE =
+            register("dimension_block_state", DimensionBlockStateResult.CODEC, DimensionBlockStateResult.STREAM_CODEC);
+
     public static final Supplier<ResultType<ConsumeCauldronFluidResult>> CONSUME_CAULDRON_FLUID =
             register("consume_cauldron_fluid", ConsumeCauldronFluidResult.CODEC, ConsumeCauldronFluidResult.STREAM_CODEC);
 

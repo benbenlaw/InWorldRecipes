@@ -12,6 +12,7 @@ import com.benbenlaw.inworldrecipes.recipe.world.result.IRecipeResult;
 import com.benbenlaw.inworldrecipes.recipe.world.trigger.IRecipeTrigger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -81,10 +83,30 @@ public class WorldRecipeEvent {
         handle(itemEntity.level(), null, pos, null, null, false, null, null);
     }
 
+    @SubscribeEvent
+    public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+
+        BlockPos pos = event.getPos().immutable();
+        Block placed = event.getPlacedBlock().getBlock();
+        Player player = event.getEntity() instanceof Player p ? p : null;
+
+        level.getServer().execute(() -> {
+            if (level.getBlockState(pos).getBlock() != placed) return;
+            handle(level, player, pos, null, null, false, null, null, true);
+        });
+    }
+
     public static void handle(Level level, @Nullable Player player, BlockPos pos, @Nullable InteractionHand hand, @Nullable ClickType clickType,
                               boolean lightningStrike, @Nullable FallingBlockEntity fallingBlock, @Nullable String chatMessage) {
+        handle(level, player, pos, hand, clickType, lightningStrike, fallingBlock, chatMessage, false);
+    }
 
-        WorldRecipeContext context = new WorldRecipeContext(level, player, pos, hand, clickType, lightningStrike, fallingBlock, chatMessage);
+    public static void handle(Level level, @Nullable Player player, BlockPos pos, @Nullable InteractionHand hand, @Nullable ClickType clickType,
+                              boolean lightningStrike, @Nullable FallingBlockEntity fallingBlock, @Nullable String chatMessage,
+                              boolean blockPlaced) {
+
+        WorldRecipeContext context = new WorldRecipeContext(level, player, pos, hand, clickType, lightningStrike, fallingBlock, chatMessage, blockPlaced);
 
         for (RecipeHolder<WorldRecipe> recipeHolder : getAllWorldRecipes(level)) {
             if (execute(context, recipeHolder.value())) {
