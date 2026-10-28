@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public record DropItemInFluidRecipe(NonNullList<SizedIngredient> droppedItems, String fluid, boolean consumeFluidBlock, NonNullList<ChanceResult> chanceResults) implements Recipe<NoInventoryRecipe> {
+public record DropItemInFluidRecipe(NonNullList<SizedIngredient> droppedItems, String fluid, boolean consumeFluidBlock, NonNullList<ChanceResult> chanceResults, boolean addToInventory) implements Recipe<NoInventoryRecipe> {
 
     @Override
     public boolean matches(NoInventoryRecipe p_346065_, Level p_345375_) {
@@ -109,7 +109,8 @@ public record DropItemInFluidRecipe(NonNullList<SizedIngredient> droppedItems, S
                             NonNullList<ChanceResult> nonNullList = NonNullList.create();
                             nonNullList.addAll(chanceResults);
                             return DataResult.success(nonNullList);
-                        }, DataResult::success).forGetter(DropItemInFluidRecipe::getRollResults)
+                        }, DataResult::success).forGetter(DropItemInFluidRecipe::getRollResults),
+                        Codec.BOOL.optionalFieldOf("add_to_inventory", false).forGetter(DropItemInFluidRecipe::addToInventory)
                 ).apply(instance, DropItemInFluidRecipe::new)
         );
 
@@ -142,7 +143,9 @@ public record DropItemInFluidRecipe(NonNullList<SizedIngredient> droppedItems, S
                 outputs.add(ChanceResult.read(buffer));
             }
 
-            return new DropItemInFluidRecipe(droppedItems, fluid, consumeFluidBlock, outputs);
+            boolean addToInventory = buffer.readBoolean();
+
+            return new DropItemInFluidRecipe(droppedItems, fluid, consumeFluidBlock, outputs, addToInventory);
         }
 
 
@@ -157,6 +160,7 @@ public record DropItemInFluidRecipe(NonNullList<SizedIngredient> droppedItems, S
             for (ChanceResult output : recipe.chanceResults) {
                 output.write(buffer);
             }
+            buffer.writeBoolean(recipe.addToInventory);
         }
     }
 }

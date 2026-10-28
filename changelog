@@ -2,7 +2,14 @@ Changelog In World Recipes
 
 //In World Recipes for 26.1
 
+
 Reduce the amount of recipe types
+
+1.8.4
+- Removed test recipes
+
+1.8.3
+- Added "add_to_inventory": true/false for drop_item_in_fluid recipe
 
 1.8.2
 - Updated to work with latest FTB Ultimine version

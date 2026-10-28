@@ -1,0 +1,20 @@
+{
+  "type": "inworldrecipes:drop_item_in_fluid",
+  "dropped_items": [
+    {
+      "item": "minecraft:clay_ball",
+      "count": 1
+    }
+  ],
+  "fluid": "minecraft:water",
+  "consume_fluid": false,
+  "add_to_inventory": false,
+  "results": [
+    {
+      "item": {
+        "id": "minecraft:clay_ball",
+        "count": 1
+      }
+    }
+  ]
+}

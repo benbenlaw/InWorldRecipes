@@ -198,11 +198,25 @@ public class InWorldRecipeEvents {
 
                     if (allIngredientsMatched) {
                         // All ingredients are present — complete the recipe
+                        Player thrower = null;
+                        if (recipe.addToInventory()) {
+                            for (ItemEntity matched : matchedEntities) {
+                                if (matched.getOwner() instanceof Player player) {
+                                    thrower = player;
+                                    break;
+                                }
+                            }
+                        }
+
                         List<ItemStack> resultItems = recipe.rollResults(level.random);
                         for (ItemStack itemStack : resultItems) {
-                            ItemEntity outputEntity = new ItemEntity(level, fluidPos.getX() + 0.5, fluidPos.getY() + 1, fluidPos.getZ() + 0.5, itemStack);
-                            outputEntity.setDefaultPickUpDelay();
-                            level.addFreshEntity(outputEntity);
+                            if (thrower != null) {
+                                thrower.getInventory().placeItemBackInInventory(itemStack);
+                            } else {
+                                ItemEntity outputEntity = new ItemEntity(level, fluidPos.getX() + 0.5, fluidPos.getY() + 1, fluidPos.getZ() + 0.5, itemStack);
+                                outputEntity.setDefaultPickUpDelay();
+                                level.addFreshEntity(outputEntity);
+                            }
                         }
 
                         // Consume the required input items
